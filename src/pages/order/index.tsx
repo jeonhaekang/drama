@@ -15,7 +15,6 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { getOrderList, insertOrders, sendAcceptMail } from "~/server/order";
 import { ColorMeOrder } from "~/types/colorMe";
-import { downloadCSV } from "~/utils/downloadCSV";
 
 const Order = () => {
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
@@ -90,35 +89,6 @@ const Order = () => {
     ) {
       sendAcceptMailMutate(_selectedKeys as string[]);
     }
-  };
-
-  const handleDownloadCSV = () => {
-    const selectedOrders = orders.sales.filter((order) =>
-      [...selectedKeys].includes(String(order.id))
-    );
-
-    const headers = [
-      "お届け先郵便番号",
-      "お届け先民名",
-      "お届け先敬称",
-      "お届け先1行目",
-      "お届け先2行目",
-      "お届け先3行目",
-      "お届け先4行目",
-      "内容品",
-    ];
-
-    const saleDeliveries = selectedOrders.reduce((acc, order) => {
-      const deliveries = order.sale_deliveries
-        .map(({ postal, name, address1, address2 }) => {
-          return `=""${postal}"",${name},様,${address1},${address2 ?? ""},,,CD`;
-        })
-        .join("\n");
-
-      return acc + "\n" + deliveries;
-    }, headers.join(","));
-
-    downloadCSV(saleDeliveries);
   };
 
   return (

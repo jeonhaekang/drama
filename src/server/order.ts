@@ -12,7 +12,7 @@ export const getOrderList = async () => {
   return response.orders;
 };
 
-export const getOrderSheet = async (sheetId: string) => {
+export const selectSheet = async (sheetId: string) => {
   const { data, error } = await supabase
     .from("orderSheets")
     .select("*, orderItems(*)")
@@ -21,10 +21,21 @@ export const getOrderSheet = async (sheetId: string) => {
 
   if (error) throw error;
 
-  return data;
+  const response = await fetch(
+    `/api/items?itemIds=${data.orderItems
+      .map((item) => item.itemId)
+      .join(", ")}`
+  ).then(
+    (res) =>
+      res.json() as Promise<{
+        items: { sales: ColorMeOrder[]; meta: ColorMeMeta };
+      }>
+  );
+
+  return response.items;
 };
 
-export const getSheets = async () => {
+export const selectSheets = async () => {
   const { data, error } = await supabase.from("orderSheets").select("*");
 
   if (error) throw error;
