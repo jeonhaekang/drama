@@ -59,8 +59,14 @@ const SheetDetail = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <Table isStriped aria-label="Example static collection table">
+    <div>
+      <Button onClick={handleDownloadCSV}>CSV Download</Button>
+
+      <Table
+        isStriped
+        aria-label="Example static collection table"
+        className="my-4"
+      >
         <TableHeader>
           <TableColumn>번호</TableColumn>
           <TableColumn>이름</TableColumn>
@@ -72,8 +78,6 @@ const SheetDetail = () => {
 
         <TableBody>
           {orders.sales.map((order) => {
-            console.log(order);
-
             return (
               <TableRow key={order.id}>
                 <TableCell>{order.id}</TableCell>
@@ -115,7 +119,7 @@ const SheetDetail = () => {
                   {order.customer.address1 !==
                     order.sale_deliveries[0].address1 && (
                     <Chip variant="dot" color="warning">
-                      별주소
+                      {order.sale_deliveries[0].name}
                     </Chip>
                   )}
                 </TableCell>
@@ -129,8 +133,8 @@ const SheetDetail = () => {
         </TableBody>
       </Table>
 
-      <Button color="primary" onClick={handleDownloadCSV}>
-        CSV Download
+      <Button color="primary" fullWidth>
+        운송장 등록
       </Button>
     </div>
   );
