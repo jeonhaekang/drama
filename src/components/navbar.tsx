@@ -10,6 +10,10 @@ export const Navbar = () => {
       <Link href="/order" className="text-sm">
         주문건
       </Link>
+
+      <Link href="/sheet" className="text-sm">
+        시트
+      </Link>
     </div>
   );
 };

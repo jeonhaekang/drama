@@ -6,7 +6,7 @@ export const DefaultLayout = ({ children }: PropsWithChildren) => {
     <>
       <Navbar />
 
-      {children}
+      <main className="p-4">{children}</main>
     </>
   );
 };
