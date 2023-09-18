@@ -37,7 +37,10 @@ export const selectSheet = async (sheetId: string) => {
 };
 
 export const selectSheets = async () => {
-  const { data, error } = await supabase.from("orderSheets").select("*");
+  const { data, error } = await supabase
+    .from("orderSheets")
+    .select("*")
+    .order("createdAt", { ascending: false });
 
   if (error) throw error;
 
