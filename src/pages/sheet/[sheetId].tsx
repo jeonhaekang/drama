@@ -48,7 +48,11 @@ const SheetDetail = () => {
     const saleDeliveries = orders.sales.reduce((acc, order) => {
       const deliveries = order.sale_deliveries
         .map(({ postal, name, address1, address2 }) => {
-          return `=""${postal}"",${name},様,${address1},${address2 ?? ""},,,CD`;
+          const _postal = postal.startsWith("0")
+            ? `${postal.slice(1, 4)}-${postal.slice(4)}`
+            : postal;
+
+          return `${_postal},${name},様,${address1},${address2 ?? ""},,,CD`;
         })
         .join("\n");
 

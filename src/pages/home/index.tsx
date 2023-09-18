@@ -19,7 +19,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     const token = await getToken(code);
 
     if (token) {
-      setCookie("Authorization", `Bearer ${token}`, { req, res });
+      setCookie("token", `Bearer ${token}`, { req, res });
     }
 
     return {

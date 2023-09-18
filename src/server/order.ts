@@ -1,8 +1,9 @@
 import { ColorMeMeta, ColorMeOrder } from "~/types/colorMe";
+import { toQueryString } from "~/utils";
 import { supabase } from "./config";
 
-export const getOrderList = async () => {
-  const response = await fetch("/api/order").then(
+export const getOrderList = async (params = {}) => {
+  const response = await fetch(`/api/order?${toQueryString(params)}`).then(
     (res) =>
       res.json() as Promise<{
         orders: { sales: ColorMeOrder[]; meta: ColorMeMeta };

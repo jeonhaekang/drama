@@ -11,7 +11,7 @@ export default async function handler(
     `https://api.shop-pro.jp/v1/sales?ids=${itemIds}&limit=100`,
     {
       headers: {
-        Authorization: req.cookies.Authorization as string,
+        Authorization: req.cookies.token as string,
       },
     }
   ).then(

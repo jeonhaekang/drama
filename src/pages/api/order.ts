@@ -6,17 +6,18 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const query = {
-    accepted_mail_state: "not_yet",
-    limit: 100,
-    canceled: false,
-  };
+  const defaultParams = { limit: 100, canceled: false } as const;
+
+  const optionalParams = (req.query as { [key: string]: string }) ?? {};
 
   const orders = await fetch(
-    `https://api.shop-pro.jp/v1/sales?${toQueryString(query)}`,
+    `https://api.shop-pro.jp/v1/sales?${toQueryString({
+      ...defaultParams,
+      ...optionalParams,
+    })}`,
     {
       headers: {
-        Authorization: req.cookies.Authorization as string,
+        Authorization: req.cookies.token as string,
       },
     }
   ).then(

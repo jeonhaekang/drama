@@ -10,7 +10,7 @@ export default async function handler(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: req.cookies.Authorization as string,
+      Authorization: req.cookies.token as string,
     },
     body: JSON.stringify({
       mail: {
