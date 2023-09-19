@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
 
 export const downloadCSV = (content: string) => {
-  const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
+  const BOM = "\uFEFF"; // UTF-8의 BOM
+  const blob = new Blob([BOM + content], { type: "text/csv;charset=utf-8" });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
 
