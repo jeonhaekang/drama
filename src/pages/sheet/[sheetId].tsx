@@ -35,17 +35,6 @@ const SheetDetail = () => {
   });
 
   const handleDownloadCSV = () => {
-    const headers = [
-      "お届け先郵便番号",
-      "お届け先氏名",
-      "お届け先敬称",
-      "お届け先住所1行目",
-      "お届け先住所2行目",
-      "お届け先住所3行目",
-      "お届け先住所4行目",
-      "内容品",
-    ];
-
     const saleDeliveries = orders.sales.reduce(
       (acc, order) => {
         const deliveries = order.sale_deliveries.map(
