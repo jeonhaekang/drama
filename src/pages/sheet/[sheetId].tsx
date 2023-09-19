@@ -1,4 +1,4 @@
-import { Button, Chip } from "@nextui-org/react";
+import { Button, Chip, Input } from "@nextui-org/react";
 import {
   Table,
   TableBody,
@@ -77,11 +77,14 @@ const SheetDetail = () => {
           <TableColumn>상품</TableColumn>
           <TableColumn>결제</TableColumn>
           <TableColumn>별주소</TableColumn>
+          <TableColumn>송장</TableColumn>
           <TableColumn>날짜</TableColumn>
         </TableHeader>
 
         <TableBody>
           {orders.sales.map((order) => {
+            console.log(order.sale_deliveries[0].slip_number);
+
             return (
               <TableRow key={order.id}>
                 <TableCell>{order.id}</TableCell>
@@ -91,7 +94,7 @@ const SheetDetail = () => {
                 </TableCell>
 
                 <TableCell className="whitespace-nowrap">
-                  <div className="flex flex-col">
+                  <div className="flex flex-col ">
                     {order.details.map((detail) => (
                       <div key={detail.id} className="flex gap-2 items-center">
                         <Image
@@ -100,8 +103,10 @@ const SheetDetail = () => {
                           width={70}
                           height={70}
                         />
-                        <span>{detail.product_name}</span>
-                        <span>{detail.product_num}EA</span>
+
+                        <span>
+                          {detail.product_name} {detail.product_num}EA
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -126,6 +131,14 @@ const SheetDetail = () => {
                       {order.sale_deliveries[0].name}
                     </Chip>
                   )}
+                </TableCell>
+
+                <TableCell className="whitespace-nowrap">
+                  <Input
+                    variant="faded"
+                    className="w-48"
+                    value={order.sale_deliveries[0].slip_number}
+                  />
                 </TableCell>
 
                 <TableCell className="whitespace-nowrap">
