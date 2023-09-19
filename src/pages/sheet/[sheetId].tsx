@@ -1,4 +1,4 @@
-import { Button, Chip, Input } from "@nextui-org/react";
+import { Button, Chip } from "@nextui-org/react";
 import {
   Table,
   TableBody,
@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { UpdateSlipNumber } from "~/components";
 import { selectSheet } from "~/server/order";
 import { downloadCSV } from "~/utils/downloadCSV";
 
@@ -75,9 +76,9 @@ const SheetDetail = () => {
           <TableColumn>번호</TableColumn>
           <TableColumn>이름</TableColumn>
           <TableColumn>상품</TableColumn>
-          <TableColumn>결제</TableColumn>
-          <TableColumn>별주소</TableColumn>
           <TableColumn>송장</TableColumn>
+          <TableColumn>별주소</TableColumn>
+          <TableColumn>결제</TableColumn>
           <TableColumn>날짜</TableColumn>
         </TableHeader>
 
@@ -113,15 +114,7 @@ const SheetDetail = () => {
                 </TableCell>
 
                 <TableCell>
-                  {order.paid ? (
-                    <Chip variant="dot" color="primary">
-                      결제
-                    </Chip>
-                  ) : (
-                    <Chip variant="dot" color="danger">
-                      미결
-                    </Chip>
-                  )}
+                  <UpdateSlipNumber order={order} />
                 </TableCell>
 
                 <TableCell>
@@ -133,12 +126,16 @@ const SheetDetail = () => {
                   )}
                 </TableCell>
 
-                <TableCell className="whitespace-nowrap">
-                  <Input
-                    variant="faded"
-                    className="w-48"
-                    value={order.sale_deliveries[0].slip_number}
-                  />
+                <TableCell>
+                  {order.paid ? (
+                    <Chip variant="dot" color="primary">
+                      결제
+                    </Chip>
+                  ) : (
+                    <Chip variant="dot" color="danger">
+                      미결
+                    </Chip>
+                  )}
                 </TableCell>
 
                 <TableCell className="whitespace-nowrap">

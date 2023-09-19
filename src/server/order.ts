@@ -60,6 +60,27 @@ export const sendAcceptMail = async (itemIds: string[]) => {
   return itemIds;
 };
 
+export const updateSlipNumber = async ({
+  order,
+  slipNumber,
+}: {
+  order: ColorMeOrder;
+  slipNumber: string;
+}) => {
+  const { error } = await fetch(`/api/order/update?orderId=${order.id}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      sale: {
+        sale_deliveries: [
+          { ...order.sale_deliveries[0], slip_number: slipNumber },
+        ],
+      },
+    }),
+  }).then((res) => res.json());
+
+  if (error) throw Error("error");
+};
+
 export const insertOrders = async (itemIds: string[]) => {
   const { data: sheet, error } = await supabase
     .from("orderSheets")
