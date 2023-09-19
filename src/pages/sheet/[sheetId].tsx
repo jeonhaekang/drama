@@ -46,19 +46,40 @@ const SheetDetail = () => {
       "内容品",
     ];
 
-    const saleDeliveries = orders.sales.reduce((acc, order) => {
-      const deliveries = order.sale_deliveries
-        .map(({ postal, name, address1, address2 }) => {
-          const _postal = postal.startsWith("0")
-            ? `${postal.slice(1, 4)}-${postal.slice(4)}`
-            : postal;
+    const saleDeliveries = orders.sales.reduce(
+      (acc, order) => {
+        const deliveries = order.sale_deliveries.map(
+          ({ postal, name, address1, address2 }) => {
+            const _postal = postal.startsWith("0")
+              ? `${postal.slice(1, 4)}-${postal.slice(4)}`
+              : postal;
 
-          return `${_postal},${name},様,${address1},${address2 ?? ""},,,CD`;
-        })
-        .join("\n");
+            return {
+              お届け先郵便番号: _postal,
+              お届け先氏名: name,
+              お届け先敬称: "様",
+              お届け先住所1行目: address1,
+              お届け先住所2行目: address2 ?? "",
+              お届け先住所3行目: "",
+              お届け先住所4行目: "",
+              内容品: "CD",
+            };
+          }
+        );
 
-      return acc + "\n" + deliveries;
-    }, headers.join(","));
+        return [...acc, ...deliveries];
+      },
+      [] as {
+        お届け先郵便番号: string;
+        お届け先氏名: string;
+        お届け先敬称: string;
+        お届け先住所1行目: string;
+        お届け先住所2行目: string;
+        お届け先住所3行目: string;
+        お届け先住所4行目: string;
+        内容品: string;
+      }[]
+    );
 
     downloadCSV(saleDeliveries);
   };

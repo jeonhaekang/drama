@@ -28,6 +28,7 @@
     "cookies-next": "^4.0.0",
     "dayjs": "^1.11.9",
     "framer-motion": "^10.16.4",
+    "iconv-lite": "^0.6.3",
     "intl-messageformat": "^10.5.0",
     "next": "13.4.19",
     "next-themes": "^0.2.1",
