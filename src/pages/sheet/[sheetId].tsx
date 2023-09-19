@@ -154,10 +154,6 @@ const SheetDetail = () => {
           })}
         </TableBody>
       </Table>
-
-      <Button color="primary" fullWidth>
-        운송장 등록
-      </Button>
     </div>
   );
 };
