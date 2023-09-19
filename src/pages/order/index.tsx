@@ -14,7 +14,7 @@ import {
 } from "@nextui-org/react";
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { getOrderList, insertOrders } from "~/server/order";
 import { ColorMeOrder } from "~/types/colorMe";
@@ -23,13 +23,16 @@ const Order = () => {
   const [orderOptions, setOrderOptions] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
 
+  const [hideReservation, setHideReservation] = useState(false);
+  const [paid, setPaid] = useState(false);
+
   const {
     data: orders,
     isFetching,
     hasNextPage,
     fetchNextPage,
   } = useInfiniteQuery({
-    queryKey: ["getOrderList", orderOptions],
+    queryKey: ["getOrderList", ...orderOptions],
     queryFn: ({ pageParam = 0 }) => {
       const options = orderOptions.reduce(
         (options, option) => ({
@@ -39,7 +42,11 @@ const Order = () => {
         {}
       );
 
-      return getOrderList({ ...options, limit: 60, offset: pageParam });
+      return getOrderList({
+        ...options,
+        limit: 60,
+        offset: pageParam,
+      });
     },
     getNextPageParam: (page) => {
       const { limit, total, offset } = page.meta;
@@ -74,7 +81,21 @@ const Order = () => {
     insertOrderMutate(_selectedKeys as string[]);
   };
 
-  const allOrders = orders?.pages.map((page) => page.sales).flat() ?? [];
+  const allOrders = useMemo(() => {
+    let _orders = orders?.pages.map((page) => page.sales).flat() ?? [];
+
+    if (hideReservation) {
+      _orders = _orders.filter((order) => !getIsReservation(order));
+    }
+
+    if (paid) {
+      _orders = _orders.filter((order) => order.paid);
+    }
+
+    return _orders;
+  }, [hideReservation, orders, paid]);
+
+  const total = orders?.pages[0].meta.total;
 
   return (
     <div className="flex flex-col gap-4">
@@ -85,6 +106,26 @@ const Order = () => {
         <Checkbox value="accepted_mail_state">미수락 주문건만 보기</Checkbox>
         <Checkbox value="delivered_mail_state">미발송 주문건만 보기</Checkbox>
       </CheckboxGroup>
+
+      <div className="flex gap-2">
+        <Checkbox
+          onChange={(event) => {
+            setHideReservation(event.target.checked);
+          }}
+        >
+          예약건 제외
+        </Checkbox>
+
+        <Checkbox
+          onChange={(event) => {
+            setPaid(event.target.checked);
+          }}
+        >
+          미결제 제외
+        </Checkbox>
+      </div>
+
+      <p>총 주문 : {total}</p>
 
       <Table
         color="primary"
