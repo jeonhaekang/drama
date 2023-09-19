@@ -84,8 +84,6 @@ const SheetDetail = () => {
 
         <TableBody>
           {orders.sales.map((order) => {
-            console.log(order.sale_deliveries[0].slip_number);
-
             return (
               <TableRow key={order.id}>
                 <TableCell>{order.id}</TableCell>
