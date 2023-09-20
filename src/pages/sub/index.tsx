@@ -9,12 +9,14 @@ import {
 } from "@nextui-org/table";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import srtParser2 from "srt-parser-2";
+import srtParser2, { Line } from "srt-parser-2";
 import { LangDropdown } from "~/components";
 import { useImmutableState } from "~/hooks";
 import { translate } from "~/server/papago";
-import { downloadSrt } from "~/utils";
+import { chunkArray, downloadSrt } from "~/utils";
 import { readFile } from "~/utils/file";
+
+const SEPARATOR = "\n\n\n";
 
 const Sub = () => {
   const form = useForm<{ files: FileList }>();
@@ -30,16 +32,26 @@ const Sub = () => {
     const parser = new srtParser2();
     const srtArray = parser.fromSrt(content);
 
-    const translated = [];
+    const srtChunkArray = chunkArray(srtArray, 200);
 
-    for (const srt of srtArray) {
+    const translated: Line[] = [];
+
+    for (const chunk of srtChunkArray) {
+      const combinedText = chunk.map((srt) => srt.text).join(SEPARATOR);
+
       const { translatedText } = await translate({
         source: options.source,
         target: options.target,
-        text: srt.text,
+        text: combinedText,
       });
 
-      translated.push({ ...srt, text: translatedText });
+      console.log(translatedText.length);
+
+      const translatedSrtArray = translatedText.split(SEPARATOR);
+
+      chunk.forEach((srt, index) =>
+        translated.push({ ...srt, text: translatedSrtArray[index] })
+      );
     }
 
     return parser.toSrt(translated);
