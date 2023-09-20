@@ -67,9 +67,11 @@ const Order = () => {
   });
 
   const getIsReservation = (details: ColorMeOrder["details"]) => {
-    return !!details.find(({ product_name: productName }) =>
+    const isReservation = !!details.find(({ product_name: productName }) =>
       productName.includes("予約")
     );
+
+    return isReservation;
   };
 
   const allOrders = useMemo(() => {
@@ -125,9 +127,11 @@ const Order = () => {
 
       case "reservation":
         return (
-          <Chip variant="flat" color="warning">
-            예약
-          </Chip>
+          cellValue && (
+            <Chip variant="flat" color="warning">
+              예약
+            </Chip>
+          )
         );
 
       default:
@@ -185,7 +189,7 @@ const Order = () => {
           columns={[
             { key: "id", label: "번호" },
             { key: "name", label: "이름" },
-            { key: "date", label: "날짜" },
+            { key: "date", label: "주문일" },
             { key: "reservation", label: "예약" },
             { key: "paid", label: "결제" },
           ]}
@@ -204,7 +208,12 @@ const Order = () => {
         </TableBody>
       </Table>
 
-      <Button onClick={handleCreateSheet} fullWidth color="primary">
+      <Button
+        onClick={handleCreateSheet}
+        fullWidth
+        color="primary"
+        className="sticky bottom-4"
+      >
         시트생성
       </Button>
     </div>
