@@ -16,7 +16,7 @@ import { translate } from "~/server/papago";
 import { chunkArray, downloadSrt } from "~/utils";
 import { readFile } from "~/utils/file";
 
-const SEPARATOR = "\n\n\n";
+const SEPARATOR = "\n\n";
 
 const Sub = () => {
   const form = useForm<{ files: FileList }>();
@@ -44,8 +44,6 @@ const Sub = () => {
         target: options.target,
         text: combinedText,
       });
-
-      console.log(translatedText.length);
 
       const translatedSrtArray = translatedText.split(SEPARATOR);
 
