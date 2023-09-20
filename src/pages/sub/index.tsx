@@ -21,14 +21,12 @@ const SEPARATOR = "\n\n";
 const Sub = () => {
   const form = useForm<{ files: FileList }>();
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [total, setTotal] = useState(0);
   const [options, setOptions] = useImmutableState({
     source: "ko",
     target: "ja",
   });
-
-  const [state, setState] = useState(false);
-
-  const [total, setTotal] = useState(0);
 
   const translateContent = async (content: string) => {
     const parser = new srtParser2();
@@ -82,64 +80,68 @@ const Sub = () => {
     <form
       className="flex flex-col gap-4"
       onSubmit={form.handleSubmit(async ({ files }) => {
-        setState(true);
+        setIsLoading(true);
 
-        for (const file of files) {
-          const content = await readFile(file);
+        try {
+          for (const file of files) {
+            const content = await readFile(file);
 
-          const translatedSrt = await translateContent(content as string);
+            const translatedSrt = await translateContent(content as string);
 
-          downloadSrt(translatedSrt, file.name);
-        }
+            downloadSrt(translatedSrt, file.name);
+          }
+        } catch (error) {}
 
-        setState(false);
+        setIsLoading(false);
       })}
     >
       <input
         type="file"
-        className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+        className="block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary-500 file:py-2.5 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-700 focus:outline-none disabled:pointer-events-none disabled:opacity-60"
         multiple
         {...form.register("files")}
       />
 
       <div className="flex gap-4">
-        <div className="flex flex-col">
-          <p>출발</p>
-          <LangDropdown
-            defaultLang={options.source}
-            onChangeLang={(lang) => setOptions({ source: lang })}
-          />
-        </div>
+        <LangDropdown
+          defaultLang={options.source}
+          onChangeLang={(lang) => setOptions({ source: lang })}
+        />
 
-        <div className="flex flex-col">
-          <p>도착</p>
-          <LangDropdown
-            defaultLang={options.target}
-            onChangeLang={(lang) => setOptions({ target: lang })}
-          />
-        </div>
+        <LangDropdown
+          defaultLang={options.target}
+          onChangeLang={(lang) => setOptions({ target: lang })}
+        />
       </div>
 
-      {form.watch("files") && (
-        <Table aria-label="Example table with dynamic content">
-          <TableHeader>
-            <TableColumn>파일명</TableColumn>
-          </TableHeader>
-          <TableBody>
-            {[...form.watch("files")].map((file) => (
-              <TableRow key={file.name}>
-                <TableCell>{file.name}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+      <Table aria-label="Example table with dynamic content">
+        <TableHeader>
+          <TableColumn>파일명</TableColumn>
+        </TableHeader>
+        <TableBody
+          emptyContent="파일을 선택해주세요"
+          items={[...(form.watch("files") ?? [])]}
+        >
+          {(file) => (
+            <TableRow key={file.name}>
+              <TableCell>{file.name}</TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
 
-      <div>글자 수: {total.toLocaleString()}</div>
-      <div>예상 요금: {Math.floor(total * 0.02).toLocaleString()}원</div>
+      <div className="flex gap-4">
+        <span className="text-default-400 text-small">
+          글자 수: {total.toLocaleString()}
+        </span>
 
-      <Button type="submit" color="primary" disabled={state}>
-        {state ? <Spinner color="white" size="sm" /> : "번역"}
+        <span className="text-default-400 text-small">
+          예상 요금: {Math.floor(total * 0.02).toLocaleString()}원
+        </span>
+      </div>
+
+      <Button type="submit" color="primary" disabled={isLoading}>
+        {isLoading ? <Spinner color="white" size="sm" /> : "번역"}
       </Button>
     </form>
   );

@@ -8,6 +8,14 @@ import {
 } from "@nextui-org/react";
 import { useMemo, useState } from "react";
 
+const LANGUAGE_MAP = {
+  ko: "한국어",
+  en: "영어",
+  ja: "일본어",
+  "zh-CN": "중국어 간체",
+  "zh-TW": "중국어 번체",
+} as const;
+
 export const LangDropdown = ({
   defaultLang = "ko",
   onChangeLang,
@@ -27,13 +35,12 @@ export const LangDropdown = ({
   return (
     <Dropdown>
       <DropdownTrigger>
-        <Button variant="bordered" className="capitalize">
-          {selectedValue}
+        <Button className="capitalize">
+          {LANGUAGE_MAP[selectedValue as keyof typeof LANGUAGE_MAP]}
         </Button>
       </DropdownTrigger>
       <DropdownMenu
         aria-label="Single selection example"
-        variant="flat"
         disallowEmptySelection
         selectionMode="single"
         selectedKeys={selectedKeys}
