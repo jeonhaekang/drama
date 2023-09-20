@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/table";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import srtParser2, { Line } from "srt-parser-2";
 import { LangDropdown } from "~/components";
@@ -23,10 +23,12 @@ const Sub = () => {
 
   const [options, setOptions] = useImmutableState({
     source: "ko",
-    target: "zh-CN",
+    target: "ja",
   });
 
   const [state, setState] = useState(false);
+
+  const [total, setTotal] = useState(0);
 
   const translateContent = async (content: string) => {
     const parser = new srtParser2();
@@ -55,6 +57,27 @@ const Sub = () => {
     return parser.toSrt(translated);
   };
 
+  const updatedTotal = useCallback(async () => {
+    let count = 0;
+
+    for (const file of form.watch("files")) {
+      const read = await readFile(file);
+
+      if (read) {
+        const parser = new srtParser2();
+        const srtArray = parser.fromSrt(read);
+
+        count += srtArray.map((srt) => srt.text).join(SEPARATOR).length;
+      }
+    }
+
+    setTotal(count);
+  }, [form.watch("files")]);
+
+  useEffect(() => {
+    updatedTotal();
+  }, [updatedTotal]);
+
   return (
     <form
       className="flex flex-col gap-4"
@@ -80,14 +103,21 @@ const Sub = () => {
       />
 
       <div className="flex gap-4">
-        <LangDropdown
-          defaultLang={options.source}
-          onChangeLang={(lang) => setOptions({ source: lang })}
-        />
-        <LangDropdown
-          defaultLang={options.target}
-          onChangeLang={(lang) => setOptions({ target: lang })}
-        />
+        <div className="flex flex-col">
+          <p>출발</p>
+          <LangDropdown
+            defaultLang={options.source}
+            onChangeLang={(lang) => setOptions({ source: lang })}
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <p>도착</p>
+          <LangDropdown
+            defaultLang={options.target}
+            onChangeLang={(lang) => setOptions({ target: lang })}
+          />
+        </div>
       </div>
 
       {form.watch("files") && (
@@ -104,6 +134,9 @@ const Sub = () => {
           </TableBody>
         </Table>
       )}
+
+      <div>글자 수: {total.toLocaleString()}</div>
+      <div>예상 요금: {Math.floor(total * 0.02).toLocaleString()}원</div>
 
       <Button type="submit" color="primary" disabled={state}>
         {state ? <Spinner color="white" size="sm" /> : "번역"}
