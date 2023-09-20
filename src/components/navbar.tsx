@@ -1,23 +1,39 @@
+import {
+  NavbarBrand,
+  Navbar as NavbarContainer,
+  NavbarContent,
+  NavbarItem,
+} from "@nextui-org/react";
 import Link from "next/link";
 
 export const Navbar = () => {
   return (
-    <div className="flex items-center gap-4 p-4">
-      <Link href="/home" className="font-bold">
-        DRAMA WORLD
-      </Link>
+    <NavbarContainer>
+      <NavbarBrand>
+        <Link href="/home" className="font-bold">
+          DRAMA WORLD
+        </Link>
+      </NavbarBrand>
 
-      <Link href="/order" className="text-sm">
-        주문건
-      </Link>
+      <NavbarContent justify="end">
+        <NavbarItem>
+          <Link href="/order" className="text-sm">
+            주문건
+          </Link>
+        </NavbarItem>
 
-      <Link href="/sheet" className="text-sm">
-        시트
-      </Link>
+        <NavbarItem>
+          <Link href="/sheet" className="text-sm">
+            시트
+          </Link>
+        </NavbarItem>
 
-      <Link href="/sub" className="text-sm">
-        자막
-      </Link>
-    </div>
+        <NavbarItem>
+          <Link href="/sub" className="text-sm">
+            자막
+          </Link>
+        </NavbarItem>
+      </NavbarContent>
+    </NavbarContainer>
   );
 };
