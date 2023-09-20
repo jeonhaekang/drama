@@ -56,12 +56,6 @@ const Order = () => {
     },
   });
 
-  const getIsReservation = (details: ColorMeOrder["details"]) => {
-    return !!details.find(({ product_name: productName }) =>
-      productName.includes("予約")
-    );
-  };
-
   const { mutate: insertOrderMutate } = useMutation({
     mutationFn: insertOrders,
     onSuccess: () => {
@@ -72,14 +66,10 @@ const Order = () => {
     },
   });
 
-  const handleCreateSheet = () => {
-    const _selectedKeys = [...selectedKeys];
-
-    if (!_selectedKeys.length) {
-      return toast("주문건을 선택해주세요.", { type: "warning" });
-    }
-
-    insertOrderMutate(_selectedKeys as string[]);
+  const getIsReservation = (details: ColorMeOrder["details"]) => {
+    return !!details.find(({ product_name: productName }) =>
+      productName.includes("予約")
+    );
   };
 
   const allOrders = useMemo(() => {
@@ -106,6 +96,22 @@ const Order = () => {
     return __orders;
   }, [hideReservation, orders, paid]);
 
+  const totalCount = useMemo(() => orders?.pages[0].meta.total, [orders]);
+
+  const handleCreateSheet = () => {
+    let _selectedKeys = Array.from(selectedKeys);
+
+    if (selectedKeys === "all") {
+      _selectedKeys = allOrders.map((order) => order.id);
+    }
+
+    if (!_selectedKeys.length) {
+      return toast("주문건을 선택해주세요.", { type: "warning" });
+    }
+
+    insertOrderMutate(_selectedKeys as string[]);
+  };
+
   const renderCell = useCallback((item: OneOf<typeof allOrders>, key: Key) => {
     const cellValue = item[key as keyof typeof item];
 
@@ -128,8 +134,6 @@ const Order = () => {
         return <div className="whitespace-nowrap">{cellValue}</div>;
     }
   }, []);
-
-  const total = orders?.pages[0].meta.total;
 
   return (
     <div className="flex flex-col gap-4">
@@ -159,16 +163,12 @@ const Order = () => {
         </Checkbox>
       </div>
 
-      <p className="text-default-400 text-small">총 주문: {total}</p>
+      <p className="text-default-400 text-small">총 주문: {totalCount}</p>
 
       <Table
         selectionMode="multiple"
         aria-label="order table"
-        onSelectionChange={(selected) => {
-          const all = new Set(allOrders.map((order) => String(order.id)));
-
-          setSelectedKeys(selected === "all" ? all : selected);
-        }}
+        onSelectionChange={setSelectedKeys}
         bottomContent={
           isFetching ? (
             <div className="flex justify-center">
