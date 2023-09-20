@@ -125,7 +125,7 @@ const Order = () => {
         );
 
       default:
-        return cellValue;
+        return <div className="whitespace-nowrap">{cellValue}</div>;
     }
   }, []);
 
