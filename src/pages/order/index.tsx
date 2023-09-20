@@ -14,10 +14,11 @@ import {
 } from "@nextui-org/react";
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { useMemo, useState } from "react";
+import { Key, useCallback, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { getOrderList, insertOrders } from "~/server/order";
 import { ColorMeOrder } from "~/types/colorMe";
+import { OneOf } from "~/types/common";
 
 const Order = () => {
   const [orderOptions, setOrderOptions] = useState<string[]>([]);
@@ -55,9 +56,9 @@ const Order = () => {
     },
   });
 
-  const getIsReservation = (order: ColorMeOrder) => {
-    return !!order.details.find(({ product_name }) =>
-      product_name.includes("予約")
+  const getIsReservation = (details: ColorMeOrder["details"]) => {
+    return !!details.find(({ product_name: productName }) =>
+      productName.includes("予約")
     );
   };
 
@@ -85,15 +86,48 @@ const Order = () => {
     let _orders = orders?.pages.map((page) => page.sales).flat() ?? [];
 
     if (hideReservation) {
-      _orders = _orders.filter((order) => !getIsReservation(order));
+      _orders = _orders.filter((order) => !getIsReservation(order.details));
     }
 
     if (paid) {
       _orders = _orders.filter((order) => order.paid);
     }
 
-    return _orders;
+    const __orders = _orders.map(
+      ({ id, customer, make_date: makeDate, details, paid }) => ({
+        id,
+        name: customer.name,
+        date: dayjs.unix(makeDate).format("YYYY-MM-DD"),
+        reservation: getIsReservation(details),
+        paid,
+      })
+    );
+
+    return __orders;
   }, [hideReservation, orders, paid]);
+
+  const renderCell = useCallback((item: OneOf<typeof allOrders>, key: Key) => {
+    const cellValue = item[key as keyof typeof item];
+
+    switch (key) {
+      case "paid":
+        return (
+          <Chip variant="flat" color={cellValue ? "success" : "danger"}>
+            {cellValue ? "결제" : "미결제"}
+          </Chip>
+        );
+
+      case "reservation":
+        return (
+          <Chip variant="flat" color="warning">
+            예약
+          </Chip>
+        );
+
+      default:
+        return cellValue;
+    }
+  }, []);
 
   const total = orders?.pages[0].meta.total;
 
@@ -125,7 +159,7 @@ const Order = () => {
         </Checkbox>
       </div>
 
-      <p>총 주문 : {total}</p>
+      <p className="text-default-400 text-small">총 주문: {total}</p>
 
       <Table
         color="primary"
@@ -148,46 +182,24 @@ const Order = () => {
           )
         }
       >
-        <TableHeader key={1}>
-          <TableColumn>번호</TableColumn>
-          <TableColumn>이름</TableColumn>
-          <TableColumn>날짜</TableColumn>
-          <TableColumn>예약</TableColumn>
-          <TableColumn>결제</TableColumn>
+        <TableHeader
+          columns={[
+            { key: "id", label: "번호" },
+            { key: "name", label: "이름" },
+            { key: "date", label: "날짜" },
+            { key: "reservation", label: "예약" },
+            { key: "paid", label: "결제" },
+          ]}
+        >
+          {(column) => (
+            <TableColumn key={column.key}>{column.label}</TableColumn>
+          )}
         </TableHeader>
 
         <TableBody items={allOrders} loadingContent={<Spinner color="white" />}>
           {(order) => (
             <TableRow key={order.id}>
-              <TableCell>{order.id}</TableCell>
-
-              <TableCell className="whitespace-nowrap">
-                {order.customer.name}
-              </TableCell>
-
-              <TableCell className="whitespace-nowrap">
-                {dayjs.unix(order.make_date).format("YYYY-MM-DD")}
-              </TableCell>
-
-              <TableCell className="whitespace-nowrap">
-                {getIsReservation(order) && (
-                  <Chip variant="dot" color="warning">
-                    예약
-                  </Chip>
-                )}
-              </TableCell>
-
-              <TableCell>
-                {order.paid ? (
-                  <Chip variant="dot" color="primary">
-                    결제
-                  </Chip>
-                ) : (
-                  <Chip variant="dot" color="danger">
-                    미결
-                  </Chip>
-                )}
-              </TableCell>
+              {(column) => <TableCell>{renderCell(order, column)}</TableCell>}
             </TableRow>
           )}
         </TableBody>
