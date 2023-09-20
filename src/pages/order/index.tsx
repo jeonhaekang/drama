@@ -162,7 +162,6 @@ const Order = () => {
       <p className="text-default-400 text-small">총 주문: {total}</p>
 
       <Table
-        color="primary"
         selectionMode="multiple"
         aria-label="order table"
         onSelectionChange={(selected) => {
