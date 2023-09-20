@@ -11,7 +11,9 @@ import { useIsSSR } from "@react-aria/ssr";
 import "react-toastify/dist/ReactToastify.css";
 import "~/styles/globals.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { refetchOnWindowFocus: false } },
+});
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;

@@ -14,6 +14,10 @@ export const Navbar = () => {
       <Link href="/sheet" className="text-sm">
         시트
       </Link>
+
+      <Link href="/sub" className="text-sm">
+        자막
+      </Link>
     </div>
   );
 };
