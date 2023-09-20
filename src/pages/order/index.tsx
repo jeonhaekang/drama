@@ -1,7 +1,6 @@
 import {
   Button,
   Checkbox,
-  CheckboxGroup,
   Chip,
   Selection,
   Spinner,
@@ -21,11 +20,27 @@ import { ColorMeOrder } from "~/types/colorMe";
 import { OneOf } from "~/types/common";
 
 const Order = () => {
-  const [orderOptions, setOrderOptions] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
 
   const [hideReservation, setHideReservation] = useState(false);
-  const [paid, setPaid] = useState(false);
+
+  const [options, setOptions] = useState<{
+    [key: string]: string | boolean;
+  }>({});
+
+  const handleChangeOptions = useCallback(
+    (key: string, value: string | boolean) => {
+      setOptions((options) => {
+        const _options = { ...options };
+
+        if (_options[key]) delete _options[key];
+        else _options[key] = value;
+
+        return _options;
+      });
+    },
+    []
+  );
 
   const {
     data: orders,
@@ -33,16 +48,8 @@ const Order = () => {
     hasNextPage,
     fetchNextPage,
   } = useInfiniteQuery({
-    queryKey: ["getOrderList", ...orderOptions],
+    queryKey: ["getOrderList", ...Object.values(options)],
     queryFn: ({ pageParam = 0 }) => {
-      const options = orderOptions.reduce(
-        (options, option) => ({
-          ...options,
-          [option]: "not_yet",
-        }),
-        {}
-      );
-
       return getOrderList({
         ...options,
         limit: 60,
@@ -81,10 +88,6 @@ const Order = () => {
       _orders = _orders.filter((order) => !getIsReservation(order.details));
     }
 
-    if (paid) {
-      _orders = _orders.filter((order) => order.paid);
-    }
-
     const __orders = _orders.map(
       ({ id, customer, make_date: makeDate, details, paid }) => ({
         id,
@@ -96,7 +99,7 @@ const Order = () => {
     );
 
     return __orders;
-  }, [hideReservation, orders, paid]);
+  }, [hideReservation, orders]);
 
   const totalCount = useMemo(() => orders?.pages[0].meta.total, [orders]);
 
@@ -121,17 +124,15 @@ const Order = () => {
       case "paid":
         return (
           <Chip variant="flat" color={cellValue ? "success" : "danger"}>
-            {cellValue ? "결제" : "미결제"}
+            {cellValue ? "결제" : "미결"}
           </Chip>
         );
 
       case "reservation":
         return (
-          cellValue && (
-            <Chip variant="flat" color="warning">
-              예약
-            </Chip>
-          )
+          <Chip variant="flat" color={cellValue ? "warning" : "primary"}>
+            {cellValue ? "예약" : "일반"}
+          </Chip>
         );
 
       default:
@@ -141,29 +142,30 @@ const Order = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <CheckboxGroup
-        orientation="horizontal"
-        onChange={(data) => setOrderOptions(data as string[])}
-      >
-        <Checkbox value="accepted_mail_state">미수락 주문건만 보기</Checkbox>
-        <Checkbox value="delivered_mail_state">미발송 주문건만 보기</Checkbox>
-      </CheckboxGroup>
-
-      <div className="flex gap-2">
+      <div className="flex gap-4 flex-wrap">
         <Checkbox
-          onChange={(event) => {
-            setHideReservation(event.target.checked);
-          }}
+          onChange={() => handleChangeOptions("accepted_mail_state", "not_yet")}
         >
-          예약건 제외
+          미수락 주문건만 보기
         </Checkbox>
 
         <Checkbox
-          onChange={(event) => {
-            setPaid(event.target.checked);
-          }}
+          value="delivered_mail_state"
+          onChange={() =>
+            handleChangeOptions("delivered_mail_state", "not_yet")
+          }
         >
-          미결제 제외
+          미발송 주문건만 보기
+        </Checkbox>
+
+        <Checkbox onChange={() => handleChangeOptions("paid", true)}>
+          결재 완료만 보기
+        </Checkbox>
+
+        <Checkbox
+          onChange={(event) => setHideReservation(event.target.checked)}
+        >
+          예약건 숨기기
         </Checkbox>
       </div>
 
@@ -190,7 +192,7 @@ const Order = () => {
             { key: "id", label: "번호" },
             { key: "name", label: "이름" },
             { key: "date", label: "주문일" },
-            { key: "reservation", label: "예약" },
+            { key: "reservation", label: "주문" },
             { key: "paid", label: "결제" },
           ]}
         >
