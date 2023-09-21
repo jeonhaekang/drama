@@ -133,12 +133,6 @@ const SheetDetail = () => {
             `${deliveries[0].address1} ${deliveries[0].address2 ?? ""}`
           );
 
-          console.log(
-            customer.name,
-            `${customer.address1} ${customer.address2}`,
-            `${deliveries[0].address1} ${deliveries[0].address2}`
-          );
-
           return (
             <Card key={sale.id}>
               <CardHeader>
@@ -229,10 +223,20 @@ const SheetDetail = () => {
           fullWidth
           color="primary"
           onClick={() => {
-            sendAcceptMailMutate({
-              itemIds: orders.sales.map((sale) => sale.id),
-              type: "accepted",
-            });
+            const itemIds = orders.sales
+              .filter(
+                ({ accepted_mail_state: acceptedState }) =>
+                  acceptedState === "not_yet"
+              )
+              .map(({ id }) => id);
+
+            if (itemIds.length === 0) {
+              toast("이미 확인 메일을 모두 전송하였습니다.", {
+                type: "warning",
+              });
+            } else {
+              // sendAcceptMailMutate({ itemIds, type: "accepted" });
+            }
           }}
         >
           확인 메일 보내기
@@ -242,10 +246,20 @@ const SheetDetail = () => {
           fullWidth
           color="primary"
           onClick={() => {
-            sendDeliveryMailMutate({
-              itemIds: orders.sales.map((sale) => sale.id),
-              type: "delivered",
-            });
+            const itemIds = orders.sales
+              .filter(
+                ({ delivered_mail_state: deliveredState }) =>
+                  deliveredState === "not_yet"
+              )
+              .map(({ id }) => id);
+
+            if (itemIds.length === 0) {
+              toast("이미 발송 메일을 모두 전송하였습니다.", {
+                type: "warning",
+              });
+            } else {
+              // sendDeliveryMailMutate({ itemIds, type: "delivered" });
+            }
           }}
         >
           발송 메일 보내기
