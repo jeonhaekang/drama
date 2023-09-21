@@ -52,8 +52,11 @@ const SheetDetail = () => {
   const { mutate: sendAcceptMailMutate, isLoading: isSendAcceptMailLoading } =
     useMutation({
       mutationFn: sendMail,
-      onSuccess: () =>
-        toast("확인 메일을 전송하였습니다.", { type: "success" }),
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(["selectSheet", sheetId]);
+
+        toast("확인 메일을 전송하였습니다.", { type: "success" });
+      },
       onError: () =>
         toast("확인 메일 전송에 실패하였습니다.", { type: "error" }),
     });
@@ -63,7 +66,11 @@ const SheetDetail = () => {
     isLoading: isSendDeliveryMailLoading,
   } = useMutation({
     mutationFn: sendMail,
-    onSuccess: () => toast("발송 메일을 전송하였습니다.", { type: "success" }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(["selectSheet", sheetId]);
+
+      toast("발송 메일을 전송하였습니다.", { type: "success" });
+    },
     onError: () => toast("발송 메일 전송에 실패하였습니다.", { type: "error" }),
   });
 
