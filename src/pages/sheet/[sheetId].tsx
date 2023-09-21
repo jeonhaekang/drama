@@ -16,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useCallback } from "react";
 import { toast } from "react-toastify";
 import { UpdateSlipNumber } from "~/components";
 import { deleteOrderItem, selectSheet, sendMail } from "~/server/order";
@@ -110,6 +111,16 @@ const SheetDetail = () => {
     downloadCSV(saleDeliveries);
   };
 
+  const getChipColor = useCallback((state: "not_yet" | "sent" | "pass") => {
+    switch (state) {
+      case "not_yet":
+        return "danger";
+
+      default:
+        return "success";
+    }
+  }, []);
+
   return (
     <div>
       <Button onClick={handleDownloadCSV}>CSV Download</Button>
@@ -155,6 +166,8 @@ const SheetDetail = () => {
             details,
             make_date: date,
             sale_deliveries: deliveries,
+            accepted_mail_state: acceptedState,
+            delivered_mail_state: deliveredState,
             paid,
           } = sale;
 
@@ -218,6 +231,26 @@ const SheetDetail = () => {
                         {deliveries[0].name}
                       </Chip>
                     )}
+
+                    <Chip
+                      size="sm"
+                      variant="dot"
+                      color={getChipColor(acceptedState)}
+                    >
+                      확인 메일&nbsp;
+                      {acceptedState === "not_yet" && "미전송"}
+                      {acceptedState === "sent" && "전송"}
+                    </Chip>
+
+                    <Chip
+                      size="sm"
+                      variant="dot"
+                      color={getChipColor(deliveredState)}
+                    >
+                      발송 메일&nbsp;
+                      {deliveredState === "not_yet" && "미전송"}
+                      {deliveredState === "sent" && "전송"}
+                    </Chip>
 
                     {paid ? (
                       <Chip size="sm" variant="dot" color="success">
