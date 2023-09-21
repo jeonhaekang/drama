@@ -129,6 +129,12 @@ const SheetDetail = () => {
           } = sale;
 
           const isEqual = isEqualString(
+            `${customer.address1} ${customer.address2 ?? ""}`,
+            `${deliveries[0].address1} ${deliveries[0].address2 ?? ""}`
+          );
+
+          console.log(
+            customer.name,
             `${customer.address1} ${customer.address2}`,
             `${deliveries[0].address1} ${deliveries[0].address2}`
           );
