@@ -9,14 +9,15 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Spinner,
+  Skeleton,
 } from "@nextui-org/react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 import { UpdateSlipNumber } from "~/components";
-import { selectSheet } from "~/server/order";
+import { selectSheet, sendMail } from "~/server/order";
 import { ColorMeOrder } from "~/types/colorMe";
 import { isEmpty, isEqualString } from "~/utils";
 import { downloadCSV } from "~/utils/downloadCSV";
@@ -38,6 +39,18 @@ const SheetDetail = () => {
         offset: 0,
       },
     },
+  });
+
+  const { mutate: sendAcceptMailMutate } = useMutation({
+    mutationFn: sendMail,
+    onSuccess: () => toast("확인 메일을 전송하였습니다.", { type: "success" }),
+    onError: () => toast("확인 메일 전송에 실패하였습니다.", { type: "error" }),
+  });
+
+  const { mutate: sendDeliveryMailMutate } = useMutation({
+    mutationFn: sendMail,
+    onSuccess: () => toast("발송 메일을 전송하였습니다.", { type: "success" }),
+    onError: () => toast("발송 메일 전송에 실패하였습니다.", { type: "error" }),
   });
 
   const formatPostal = (postal: string): string => {
@@ -72,7 +85,39 @@ const SheetDetail = () => {
       <Button onClick={handleDownloadCSV}>CSV Download</Button>
 
       <div className="flex flex-col gap-4 my-4">
-        {isEmpty(orders.sales) && <Spinner color="white" />}
+        {isEmpty(orders.sales) &&
+          Array(5)
+            .fill(0)
+            .map(() => (
+              <Card className="space-y-5 p-4" radius="lg">
+                <div className="space-y-2">
+                  <Skeleton className="w-1/5 rounded-lg">
+                    <div className="h-3 rounded-lg bg-default-300"></div>
+                  </Skeleton>
+
+                  <Skeleton className="w-1/6 rounded-lg">
+                    <div className="h-3 rounded-lg bg-default-300"></div>
+                  </Skeleton>
+
+                  <Skeleton className="w-1/5 rounded-lg">
+                    <div className="h-3 rounded-lg bg-default-300"></div>
+                  </Skeleton>
+                </div>
+
+                <Skeleton className="rounded-lg">
+                  <div className="h-24 rounded-lg bg-default-300"></div>
+                </Skeleton>
+
+                <Skeleton className="w-1/6 rounded-lg">
+                  <div className="h-6 rounded-lg bg-default-300"></div>
+                </Skeleton>
+
+                <Skeleton className="w-1/3 rounded-lg">
+                  <div className="h-9 rounded-lg bg-default-300"></div>
+                </Skeleton>
+              </Card>
+            ))}
+
         {orders.sales.map((sale) => {
           const {
             id,
@@ -171,6 +216,34 @@ const SheetDetail = () => {
             </Card>
           );
         })}
+      </div>
+
+      <div className="flex gap-4 sticky bottom-4 z-10">
+        <Button
+          fullWidth
+          color="primary"
+          onClick={() => {
+            sendAcceptMailMutate({
+              itemIds: orders.sales.map((sale) => sale.id),
+              type: "accepted",
+            });
+          }}
+        >
+          확인 메일 보내기
+        </Button>
+
+        <Button
+          fullWidth
+          color="primary"
+          onClick={() => {
+            sendDeliveryMailMutate({
+              itemIds: orders.sales.map((sale) => sale.id),
+              type: "delivered",
+            });
+          }}
+        >
+          발송 메일 보내기
+        </Button>
       </div>
     </div>
   );

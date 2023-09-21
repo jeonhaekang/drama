@@ -47,17 +47,16 @@ export const selectSheets = async () => {
   return data;
 };
 
-export const sendAcceptMail = async (itemIds: string[]) => {
-  const promises = itemIds.map(async (itemId) => {
-    await fetch(`/api/send`, {
-      method: "POST",
-      body: JSON.stringify({ itemId }),
-    });
-  });
+export const sendMail = async (option: {
+  itemIds: number[];
+  type: "accepted" | "paid" | "delivered";
+}) => {
+  const response = await fetch(`/api/send`, {
+    method: "POST",
+    body: JSON.stringify(option),
+  }).then((res) => res.json());
 
-  await Promise.all(promises);
-
-  return itemIds;
+  if (response.error) throw Error("error");
 };
 
 export const updateSlipNumber = async ({
