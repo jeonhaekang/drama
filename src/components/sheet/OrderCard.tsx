@@ -22,7 +22,7 @@ import { deleteOrderItem, updateSlipNumber } from "~/server/order";
 import { ColorMeOrder, ColorMeOrderResponse } from "~/types/colorMe";
 import { isEqualString } from "~/utils";
 
-export const OrderCard = memo((order: ColorMeOrder) => {
+export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
   const {
     id,
     customer,
@@ -32,7 +32,7 @@ export const OrderCard = memo((order: ColorMeOrder) => {
     accepted_mail_state: acceptedState,
     delivered_mail_state: deliveredState,
     paid,
-  } = order;
+  } = sale;
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -179,7 +179,7 @@ export const OrderCard = memo((order: ColorMeOrder) => {
         <form
           className="flex gap-2"
           onSubmit={form.handleSubmit(({ slipNumber }) =>
-            updateSlipNumberMutate({ order, slipNumber })
+            updateSlipNumberMutate({ order: sale, slipNumber })
           )}
         >
           <Input
