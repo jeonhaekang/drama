@@ -38,10 +38,14 @@ const Sheet = () => {
   return (
     <Table
       aria-label="order table"
-      classNames={{
-        table: "min-h-[100px]",
-      }}
       onRowAction={(id) => router.push(`/sheet/${id}`)}
+      bottomContent={
+        isFetching && (
+          <div className="flex justify-center">
+            <Spinner color="white" />
+          </div>
+        )
+      }
     >
       <TableHeader
         columns={[
@@ -52,11 +56,7 @@ const Sheet = () => {
         {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
       </TableHeader>
 
-      <TableBody
-        items={sheets}
-        isLoading={isFetching}
-        loadingContent={<Spinner color="white" />}
-      >
+      <TableBody items={sheets}>
         {(order) => (
           <TableRow key={order.id} className="cursor-pointer">
             {(column) => <TableCell>{renderCell(order, column)}</TableCell>}
