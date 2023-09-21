@@ -13,7 +13,7 @@ interface Customer {
   pref_id: number;
   pref_name: string;
   address1: string;
-  address2: string;
+  address2?: string;
   mail: string;
   tel: string | null;
   fax: string | null;
@@ -65,7 +65,7 @@ interface SaleDelivery {
   pref_id: number;
   pref_name: string;
   address1: string;
-  address2: string;
+  address2?: string;
   tel: string | null;
   preferred_date: string;
   preferred_period: string;
@@ -158,4 +158,9 @@ export interface ColorMeMeta {
   total: number;
   limit: number;
   offset: number;
+}
+
+export interface ColorMeOrderResponse {
+  sales: ColorMeOrder[];
+  meta: ColorMeMeta;
 }
