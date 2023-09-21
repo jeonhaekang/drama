@@ -9,6 +9,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Spinner,
 } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
@@ -16,7 +17,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { UpdateSlipNumber } from "~/components";
 import { selectSheet } from "~/server/order";
-import { isEqualString } from "~/utils";
+import { isEmpty, isEqualString } from "~/utils";
 import { downloadCSV } from "~/utils/downloadCSV";
 
 const SheetDetail = () => {
@@ -82,6 +83,7 @@ const SheetDetail = () => {
       <Button onClick={handleDownloadCSV}>CSV Download</Button>
 
       <div className="flex flex-col gap-4 my-4">
+        {isEmpty(orders.sales) && <Spinner color="white" />}
         {orders.sales.map((sale) => {
           const {
             id,
@@ -98,7 +100,7 @@ const SheetDetail = () => {
           );
 
           return (
-            <Card>
+            <Card key={sale.id}>
               <CardHeader>
                 <div>
                   <p className="text-sm text-default-500">{id}</p>
@@ -116,11 +118,12 @@ const SheetDetail = () => {
               <CardBody className="flex flex-col gap-2">
                 {details.map(
                   ({
+                    id,
                     product_name: name,
                     product_num: count,
                     product_thumbnail_image_url: image,
                   }) => (
-                    <Popover>
+                    <Popover key={id}>
                       <PopoverTrigger>
                         <Button variant="light" className="whitespace-normal">
                           {name} {count}EA

@@ -1,3 +1,4 @@
+import { Spinner } from "@nextui-org/react";
 import {
   Table,
   TableBody,
@@ -8,37 +9,59 @@ import {
 } from "@nextui-org/table";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import Link from "next/link";
+import { useRouter } from "next/router";
+import { Key, useCallback } from "react";
 import { selectSheets } from "~/server/order";
+import { OneOf } from "~/types/common";
 
 const Sheet = () => {
-  const { data: sheets } = useQuery({
+  const router = useRouter();
+
+  const { data: sheets, isFetching } = useQuery({
     queryFn: selectSheets,
     queryKey: ["selectSheets"],
     initialData: [],
   });
 
+  const renderCell = useCallback((item: OneOf<typeof sheets>, key: Key) => {
+    const cellValue = item[key as keyof typeof item];
+
+    switch (key) {
+      case "createdAt":
+        return dayjs(cellValue).format("YYYY-MM-DD HH:mm");
+
+      default:
+        return cellValue;
+    }
+  }, []);
+
   return (
-    <Table aria-label="order table">
-      <TableHeader key={1}>
-        <TableColumn>번호</TableColumn>
-        <TableColumn>날짜</TableColumn>
+    <Table
+      aria-label="order table"
+      classNames={{
+        table: "min-h-[100px]",
+      }}
+      onRowAction={(id) => router.push(`/sheet/${id}`)}
+    >
+      <TableHeader
+        columns={[
+          { key: "id", label: "번호" },
+          { key: "createdAt", label: "생성일" },
+        ]}
+      >
+        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
       </TableHeader>
 
-      <TableBody>
-        {sheets.map((sheet) => {
-          return (
-            <TableRow key={sheet.id}>
-              <TableCell>{sheet.id}</TableCell>
-
-              <TableCell className="whitespace-nowrap">
-                <Link href={`/sheet/${sheet.id}`}>
-                  {dayjs(sheet.createdAt).format("YYYY-MM-DD HH:mm")}
-                </Link>
-              </TableCell>
-            </TableRow>
-          );
-        })}
+      <TableBody
+        items={sheets}
+        isLoading={isFetching}
+        loadingContent={<Spinner color="white" />}
+      >
+        {(order) => (
+          <TableRow key={order.id}>
+            {(column) => <TableCell>{renderCell(order, column)}</TableCell>}
+          </TableRow>
+        )}
       </TableBody>
     </Table>
   );
