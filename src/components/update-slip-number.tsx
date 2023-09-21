@@ -32,7 +32,11 @@ export const UpdateSlipNumber = ({ order }: { order: ColorMeOrder }) => {
         updateSlipNumberMutate({ order, slipNumber });
       })}
     >
-      <Input size="sm" {...form.register("slipNumber")} />
+      <Input
+        size="sm"
+        placeholder="송장 번호를 입력해주세요."
+        {...form.register("slipNumber")}
+      />
 
       <Button
         type="submit"
