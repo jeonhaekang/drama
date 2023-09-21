@@ -1,4 +1,12 @@
-import { Button, Spinner } from "@nextui-org/react";
+import {
+  Button,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Spinner,
+  useDisclosure,
+} from "@nextui-org/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
@@ -11,6 +19,8 @@ export const SendDeliveryMailButton = ({
 }: {
   sales: ColorMeOrderResponse["sales"];
 }) => {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -44,13 +54,22 @@ export const SendDeliveryMailButton = ({
   }, []);
 
   return (
-    <Button
-      color="primary"
-      fullWidth
-      disabled={isLoading}
-      onClick={handleSendMail}
-    >
-      {isLoading ? <Spinner color="white" /> : "발송 메일 보내기"}
-    </Button>
+    <>
+      <Button color="primary" fullWidth disabled={isLoading} onPress={onOpen}>
+        {isLoading ? <Spinner color="white" /> : "발송 메일 보내기"}
+      </Button>
+
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          <ModalHeader>발송 메일을 전송하시겠습니까?</ModalHeader>
+
+          <ModalFooter>
+            <Button size="sm" color="primary" onPress={handleSendMail}>
+              전송
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };

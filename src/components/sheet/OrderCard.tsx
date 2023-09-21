@@ -7,9 +7,14 @@ import {
   Chip,
   Divider,
   Input,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   Popover,
   PopoverContent,
   PopoverTrigger,
+  useDisclosure,
 } from "@nextui-org/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
@@ -33,6 +38,8 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
     delivered_mail_state: deliveredState,
     paid,
   } = sale;
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -198,13 +205,25 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
           </Button>
         </form>
 
-        <Button
-          color="danger"
-          size="sm"
-          onClick={() => deleteOrderItemMutate({ itemId: id, sheetId })}
-        >
+        <Button color="danger" size="sm" onPress={onOpen}>
           제거
         </Button>
+
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+          <ModalContent>
+            <ModalHeader>시트에서 주문건을 삭제하시겠습니까?</ModalHeader>
+
+            <ModalFooter>
+              <Button
+                size="sm"
+                color="danger"
+                onPress={() => deleteOrderItemMutate({ itemId: id, sheetId })}
+              >
+                삭제
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </CardFooter>
     </CardContainer>
   );
