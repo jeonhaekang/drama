@@ -13,7 +13,7 @@ import {
 } from "@nextui-org/react";
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { Key, useCallback, useMemo, useState } from "react";
+import { Key, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { getOrderList, insertOrders } from "~/server/order";
 import { ColorMeOrder } from "~/types/colorMe";
@@ -140,6 +140,10 @@ const Order = () => {
     }
   }, []);
 
+  useEffect(() => {
+    setSelectedKeys(new Set());
+  }, [options, hideReservation]);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-4 flex-wrap">
@@ -174,6 +178,7 @@ const Order = () => {
       <Table
         selectionMode="multiple"
         aria-label="order table"
+        selectedKeys={selectedKeys}
         onSelectionChange={setSelectedKeys}
         bottomContent={
           isFetching ? (
