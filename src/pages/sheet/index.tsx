@@ -58,7 +58,7 @@ const Sheet = () => {
         loadingContent={<Spinner color="white" />}
       >
         {(order) => (
-          <TableRow key={order.id}>
+          <TableRow key={order.id} className="cursor-pointer">
             {(column) => <TableCell>{renderCell(order, column)}</TableCell>}
           </TableRow>
         )}
