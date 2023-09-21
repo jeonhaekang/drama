@@ -82,7 +82,7 @@ const SheetDetail = () => {
     <div>
       <Button onClick={handleDownloadCSV}>CSV Download</Button>
 
-      <div className="flex flex-col gap-4 my-4">
+      <div className="grid md:grid-cols-2 gap-4 my-4">
         {isEmpty(orders.sales) && <Spinner color="white" />}
         {orders.sales.map((sale) => {
           const {
