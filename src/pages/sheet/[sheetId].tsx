@@ -10,19 +10,26 @@ import {
   PopoverContent,
   PopoverTrigger,
   Skeleton,
+  Spinner,
 } from "@nextui-org/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { UpdateSlipNumber } from "~/components";
-import { selectSheet, sendMail } from "~/server/order";
-import { ColorMeOrder } from "~/types/colorMe";
+import { deleteOrderItem, selectSheet, sendMail } from "~/server/order";
+import { ColorMeMeta, ColorMeOrder } from "~/types/colorMe";
 import { isEmpty, isEqualString } from "~/utils";
 import { downloadCSV } from "~/utils/downloadCSV";
 
+interface Item {
+  sales: ColorMeOrder[];
+  meta: ColorMeMeta;
+}
+
 const SheetDetail = () => {
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   const sheetId = router.query.sheetId as string;
@@ -41,16 +48,39 @@ const SheetDetail = () => {
     },
   });
 
-  const { mutate: sendAcceptMailMutate } = useMutation({
-    mutationFn: sendMail,
-    onSuccess: () => toast("확인 메일을 전송하였습니다.", { type: "success" }),
-    onError: () => toast("확인 메일 전송에 실패하였습니다.", { type: "error" }),
-  });
+  const { mutate: sendAcceptMailMutate, isLoading: isSendAcceptMailLoading } =
+    useMutation({
+      mutationFn: sendMail,
+      onSuccess: () =>
+        toast("확인 메일을 전송하였습니다.", { type: "success" }),
+      onError: () =>
+        toast("확인 메일 전송에 실패하였습니다.", { type: "error" }),
+    });
 
-  const { mutate: sendDeliveryMailMutate } = useMutation({
+  const {
+    mutate: sendDeliveryMailMutate,
+    isLoading: isSendDeliveryMailLoading,
+  } = useMutation({
     mutationFn: sendMail,
     onSuccess: () => toast("발송 메일을 전송하였습니다.", { type: "success" }),
     onError: () => toast("발송 메일 전송에 실패하였습니다.", { type: "error" }),
+  });
+
+  const { mutate: deleteOrderItemMutate } = useMutation({
+    mutationFn: deleteOrderItem,
+    onSuccess: (itemId) => {
+      queryClient.setQueryData<Item>(["selectSheet", sheetId], (data) => {
+        return {
+          ...data,
+          sales: data?.sales.filter((sale) => sale.id !== itemId),
+        } as Item;
+      });
+
+      toast("주문건을 시트에서 제거하였습니다.", { type: "success" });
+    },
+    onError: () => {
+      toast("주문건을 시트에서 제거하는게 실패하였습니다.", { type: "error" });
+    },
   });
 
   const formatPostal = (postal: string): string => {
@@ -210,8 +240,16 @@ const SheetDetail = () => {
 
               <Divider />
 
-              <CardFooter>
+              <CardFooter className="flex justify-between">
                 <UpdateSlipNumber order={sale} />
+
+                <Button
+                  color="danger"
+                  size="sm"
+                  onClick={() => deleteOrderItemMutate({ itemId: id, sheetId })}
+                >
+                  제거
+                </Button>
               </CardFooter>
             </Card>
           );
@@ -222,6 +260,7 @@ const SheetDetail = () => {
         <Button
           fullWidth
           color="primary"
+          disabled={isSendAcceptMailLoading}
           onClick={() => {
             const itemIds = orders.sales
               .filter(
@@ -235,16 +274,18 @@ const SheetDetail = () => {
                 type: "warning",
               });
             } else {
-              // sendAcceptMailMutate({ itemIds, type: "accepted" });
+              sendAcceptMailMutate({ itemIds, type: "accepted" });
             }
           }}
         >
+          {isSendAcceptMailLoading && <Spinner color="white" />}
           확인 메일 보내기
         </Button>
 
         <Button
           fullWidth
           color="primary"
+          disabled={isSendDeliveryMailLoading}
           onClick={() => {
             const itemIds = orders.sales
               .filter(
@@ -258,10 +299,11 @@ const SheetDetail = () => {
                 type: "warning",
               });
             } else {
-              // sendDeliveryMailMutate({ itemIds, type: "delivered" });
+              sendDeliveryMailMutate({ itemIds, type: "delivered" });
             }
           }}
         >
+          {isSendDeliveryMailLoading && <Spinner color="white" />}
           발송 메일 보내기
         </Button>
       </div>

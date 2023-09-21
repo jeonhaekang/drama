@@ -97,3 +97,21 @@ export const insertOrders = async (itemIds: string[]) => {
 
   return sheet;
 };
+
+export const deleteOrderItem = async ({
+  itemId,
+  sheetId,
+}: {
+  itemId: number;
+  sheetId: string;
+}) => {
+  const { error } = await supabase
+    .from("orderItems")
+    .delete()
+    .eq("itemId", itemId)
+    .eq("sheetId", sheetId);
+
+  if (error) throw error;
+
+  return itemId;
+};
