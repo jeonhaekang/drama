@@ -95,14 +95,6 @@ const Sub = () => {
         setIsLoading(false);
       })}
     >
-      <input
-        type="file"
-        className="block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary-500 file:py-2.5 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-700 focus:outline-none disabled:pointer-events-none disabled:opacity-60"
-        multiple
-        accept=".srt"
-        {...form.register("files")}
-      />
-
       <div className="flex gap-4">
         <LangDropdown
           label="출발 언어"
@@ -117,7 +109,18 @@ const Sub = () => {
         />
       </div>
 
-      <Table aria-label="Example table with dynamic content">
+      <Table
+        aria-label="Example table with dynamic content"
+        bottomContent={
+          <input
+            type="file"
+            className="block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary-500 file:py-2.5 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-700 focus:outline-none disabled:pointer-events-none disabled:opacity-60"
+            multiple
+            accept=".srt"
+            {...form.register("files")}
+          />
+        }
+      >
         <TableHeader>
           <TableColumn>파일명</TableColumn>
         </TableHeader>
