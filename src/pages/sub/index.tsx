@@ -1,4 +1,4 @@
-import { Button, Spinner } from "@nextui-org/react";
+import { Button, Chip, Spinner } from "@nextui-org/react";
 import {
   Table,
   TableBody,
@@ -26,6 +26,13 @@ const Sub = () => {
   const [options, setOptions] = useImmutableState({
     source: "ko",
     target: "ja",
+  });
+
+  const [progress, setProgress] = useImmutableState<{
+    in?: string;
+    done: string[];
+  }>({
+    done: [],
   });
 
   const translateContent = async (content: string) => {
@@ -82,13 +89,23 @@ const Sub = () => {
       onSubmit={form.handleSubmit(async ({ files }) => {
         setIsLoading(true);
 
-        try {
-          for (const file of files) {
-            const content = await readFile(file);
+        const _files = Array.from(files);
 
+        try {
+          for (let i = 0; i < _files.length; i++) {
+            const file = _files[i];
+
+            setProgress({ in: file.name });
+
+            const content = await readFile(_files[i]);
             const translatedSrt = await translateContent(content as string);
 
             downloadSrt(translatedSrt, file.name);
+
+            setProgress((progress) => ({
+              in: undefined,
+              done: [...progress.done, file.name],
+            }));
           }
         } catch (error) {}
 
@@ -114,7 +131,7 @@ const Sub = () => {
         bottomContent={
           <input
             type="file"
-            className="block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary-500 file:py-2.5 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-700 focus:outline-none disabled:pointer-events-none disabled:opacity-60"
+            className="block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary-500 file:py-2 file:px-3 file:text-sm hover:file:bg-primary-600 focus:outline-none disabled:pointer-events-none"
             multiple
             accept=".srt"
             {...form.register("files")}
@@ -123,16 +140,26 @@ const Sub = () => {
       >
         <TableHeader>
           <TableColumn>파일명</TableColumn>
+          <TableColumn width={100} align="end">
+            상태
+          </TableColumn>
         </TableHeader>
-        <TableBody
-          emptyContent="파일을 선택해주세요"
-          items={[...(form.watch("files") ?? [])]}
-        >
-          {(file) => (
+        <TableBody emptyContent="파일을 선택해주세요">
+          {Array.from(form.watch("files") ?? []).map((file) => (
             <TableRow key={file.name}>
               <TableCell>{file.name}</TableCell>
+
+              <TableCell>
+                {progress.done.includes(file.name) && (
+                  <Chip variant="flat" size="sm" color="success">
+                    완료
+                  </Chip>
+                )}
+
+                {progress.in === file.name && <Spinner size="sm" />}
+              </TableCell>
             </TableRow>
-          )}
+          ))}
         </TableBody>
       </Table>
 
