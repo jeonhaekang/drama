@@ -32,12 +32,7 @@ export const UpdateSlipNumber = ({ order }: { order: ColorMeOrder }) => {
         updateSlipNumberMutate({ order, slipNumber });
       })}
     >
-      <Input
-        variant="faded"
-        size="sm"
-        className="w-48"
-        {...form.register("slipNumber")}
-      />
+      <Input size="sm" {...form.register("slipNumber")} />
 
       <Button
         type="submit"

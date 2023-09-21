@@ -1,18 +1,22 @@
-import { Button, Chip } from "@nextui-org/react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-} from "@nextui-org/table";
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Chip,
+  Divider,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { UpdateSlipNumber } from "~/components";
 import { selectSheet } from "~/server/order";
+import { isEqualString } from "~/utils";
 import { downloadCSV } from "~/utils/downloadCSV";
 
 const SheetDetail = () => {
@@ -77,83 +81,105 @@ const SheetDetail = () => {
     <div>
       <Button onClick={handleDownloadCSV}>CSV Download</Button>
 
-      <Table
-        isStriped
-        aria-label="Example static collection table"
-        className="my-4"
-      >
-        <TableHeader>
-          <TableColumn>번호</TableColumn>
-          <TableColumn>이름</TableColumn>
-          <TableColumn>상품</TableColumn>
-          <TableColumn>송장</TableColumn>
-          <TableColumn>별주소</TableColumn>
-          <TableColumn>결제</TableColumn>
-          <TableColumn>날짜</TableColumn>
-        </TableHeader>
+      <div className="flex flex-col gap-4 my-4">
+        {orders.sales.map((sale) => {
+          const {
+            id,
+            customer,
+            details,
+            make_date: date,
+            sale_deliveries: deliveries,
+            paid,
+          } = sale;
 
-        <TableBody>
-          {orders.sales.map((order) => {
-            return (
-              <TableRow key={order.id}>
-                <TableCell>{order.id}</TableCell>
+          const isEqual = isEqualString(
+            `${customer.address1} ${customer.address2}`,
+            `${deliveries[0].address1} ${deliveries[0].address2}`
+          );
 
-                <TableCell className="whitespace-nowrap">
-                  {order.customer.name}
-                </TableCell>
+          return (
+            <Card>
+              <CardHeader>
+                <div>
+                  <p className="text-sm text-default-500">{id}</p>
 
-                <TableCell className="whitespace-nowrap">
-                  <div className="flex flex-col ">
-                    {order.details.map((detail) => (
-                      <div key={detail.id} className="flex gap-2 items-center">
+                  <p>{customer.name}</p>
+
+                  <p className="text-sm text-default-400">
+                    {dayjs.unix(date).format("YYYY-MM-DD")}
+                  </p>
+                </div>
+              </CardHeader>
+
+              <Divider />
+
+              <CardBody className="flex flex-col gap-2">
+                {details.map(
+                  ({
+                    product_name: name,
+                    product_num: count,
+                    product_thumbnail_image_url: image,
+                  }) => (
+                    <Popover>
+                      <PopoverTrigger>
+                        <Button variant="light" className="whitespace-normal">
+                          {name} {count}EA
+                        </Button>
+                      </PopoverTrigger>
+
+                      <PopoverContent>
                         <Image
-                          src={detail.product_thumbnail_image_url}
+                          src={image}
                           alt="image"
-                          width={70}
-                          height={70}
+                          width={250}
+                          height={250}
+                          className="rounded-full"
                         />
+                      </PopoverContent>
+                    </Popover>
+                  )
+                )}
+              </CardBody>
 
-                        <span>
-                          {detail.product_name} {detail.product_num}EA
-                        </span>
-                      </div>
-                    ))}
+              <Divider />
+
+              <CardFooter>
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    {!isEqual && (
+                      <Chip variant="dot" color="warning" size="sm">
+                        {deliveries[0].name}
+                      </Chip>
+                    )}
+
+                    {paid ? (
+                      <Chip size="sm" variant="dot" color="success">
+                        결제완료
+                      </Chip>
+                    ) : (
+                      <Chip size="sm" variant="dot" color="danger">
+                        미결제
+                      </Chip>
+                    )}
                   </div>
-                </TableCell>
 
-                <TableCell>
-                  <UpdateSlipNumber order={order} />
-                </TableCell>
-
-                <TableCell>
-                  {order.customer.address1 !==
-                    order.sale_deliveries[0].address1 && (
-                    <Chip variant="dot" color="warning">
-                      {order.sale_deliveries[0].name}
-                    </Chip>
+                  {!isEqual && (
+                    <p className="text-sm text-red-600">
+                      주문지와 배송지가 다르니 주의하세요.
+                    </p>
                   )}
-                </TableCell>
+                </div>
+              </CardFooter>
 
-                <TableCell>
-                  {order.paid ? (
-                    <Chip variant="dot" color="primary">
-                      결제
-                    </Chip>
-                  ) : (
-                    <Chip variant="dot" color="danger">
-                      미결
-                    </Chip>
-                  )}
-                </TableCell>
+              <Divider />
 
-                <TableCell className="whitespace-nowrap">
-                  {dayjs.unix(order.make_date).format("YYYY-MM-DD")}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+              <CardFooter>
+                <UpdateSlipNumber order={sale} />
+              </CardFooter>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 };
