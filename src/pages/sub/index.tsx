@@ -99,16 +99,19 @@ const Sub = () => {
         type="file"
         className="block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary-500 file:py-2.5 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-700 focus:outline-none disabled:pointer-events-none disabled:opacity-60"
         multiple
+        accept=".srt"
         {...form.register("files")}
       />
 
       <div className="flex gap-4">
         <LangDropdown
+          label="출발 언어"
           defaultLang={options.source}
           onChangeLang={(lang) => setOptions({ source: lang })}
         />
 
         <LangDropdown
+          label="도착 언어"
           defaultLang={options.target}
           onChangeLang={(lang) => setOptions({ target: lang })}
         />
