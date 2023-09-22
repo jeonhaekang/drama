@@ -30,6 +30,7 @@ const SheetDetail = () => {
 
   const { mutate: sendDeliveryMailMutate, isLoading } = useMutation({
     mutationFn: sendMail,
+    onMutate: () => onOpenChange(),
     onSuccess: async () => {
       toast("발송 메일을 전송하였습니다.", { type: "success" });
     },

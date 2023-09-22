@@ -85,6 +85,7 @@ const Order = () => {
 
   const { mutate: sendAcceptMailMutate, isLoading } = useMutation({
     mutationFn: sendMail,
+    onMutate: () => onOpenChange(),
     onSuccess: async () => {
       toast("확인 메일을 전송하였습니다.", { type: "success" });
     },
