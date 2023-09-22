@@ -1,24 +1,13 @@
-import {
-  Button,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Spinner,
-  useDisclosure,
-} from "@nextui-org/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
-import { useCallback } from "react";
-import { toast } from "react-toastify";
 import { DownloadCSV, OrderCard, OrderCardSkeleton } from "~/components/sheet";
-import { selectSheet, sendMail } from "~/server/order";
+import { selectSheet } from "~/server/order";
 
 const SheetDetail = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  // const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const sheetId = router.query.sheetId as string;
 
@@ -28,37 +17,37 @@ const SheetDetail = () => {
     enabled: !!sheetId,
   });
 
-  const { mutate: sendDeliveryMailMutate, isLoading } = useMutation({
-    mutationFn: sendMail,
-    onMutate: () => onOpenChange(),
-    onSuccess: async () => {
-      toast("발송 메일을 전송하였습니다.", { type: "success" });
-    },
-    onError: () => {
-      toast("발송 메일 전송에 실패하였습니다.", { type: "error" });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(["selectSheet", sheetId]);
-    },
-  });
+  // const { mutate: sendDeliveryMailMutate, isLoading } = useMutation({
+  //   mutationFn: sendMail,
+  //   onMutate: () => onOpenChange(),
+  //   onSuccess: async () => {
+  //     toast("발송 메일을 전송하였습니다.", { type: "success" });
+  //   },
+  //   onError: () => {
+  //     toast("발송 메일 전송에 실패하였습니다.", { type: "error" });
+  //   },
+  //   onSettled: () => {
+  //     queryClient.invalidateQueries(["selectSheet", sheetId]);
+  //   },
+  // });
 
-  const handleSendMail = useCallback(() => {
-    const itemIds =
-      orders?.sales
-        .filter(
-          ({ delivered_mail_state: deliveredState }) =>
-            deliveredState === "not_yet"
-        )
-        .map(({ id }) => id) ?? [];
+  // const handleSendMail = useCallback(() => {
+  //   const itemIds =
+  //     orders?.sales
+  //       .filter(
+  //         ({ delivered_mail_state: deliveredState }) =>
+  //           deliveredState === "not_yet"
+  //       )
+  //       .map(({ id }) => id) ?? [];
 
-    if (itemIds.length === 0) {
-      return toast("이미 발송 메일을 모두 전송하였습니다.", {
-        type: "warning",
-      });
-    }
+  //   if (itemIds.length === 0) {
+  //     return toast("이미 발송 메일을 모두 전송하였습니다.", {
+  //       type: "warning",
+  //     });
+  //   }
 
-    sendDeliveryMailMutate({ itemIds, type: "accepted" });
-  }, []);
+  //   sendDeliveryMailMutate({ itemIds, type: "accepted" });
+  // }, []);
 
   return (
     <div>
@@ -72,7 +61,7 @@ const SheetDetail = () => {
         )}
       </div>
 
-      {orders && (
+      {/* {orders && (
         <div className="flex gap-4 sticky bottom-4 z-10">
           <Button
             color="primary"
@@ -95,7 +84,7 @@ const SheetDetail = () => {
             </ModalContent>
           </Modal>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

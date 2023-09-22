@@ -2,10 +2,6 @@ import {
   Button,
   Checkbox,
   Chip,
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
   Selection,
   Spinner,
   Table,
@@ -24,7 +20,7 @@ import {
 import dayjs from "dayjs";
 import { Key, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import { getOrderList, insertOrders, sendMail } from "~/server/order";
+import { getOrderList, insertOrders } from "~/server/order";
 import { ColorMeOrder } from "~/types/colorMe";
 import { OneOf } from "~/types/common";
 
@@ -83,22 +79,22 @@ const Order = () => {
     },
   });
 
-  const { mutate: sendAcceptMailMutate, isLoading } = useMutation({
-    mutationFn: sendMail,
-    onMutate: () => onOpenChange(),
-    onSuccess: async () => {
-      toast("확인 메일을 전송하였습니다.", { type: "success" });
-    },
-    onError: () => {
-      toast("확인 메일 전송에 실패하였습니다.", { type: "error" });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries([
-        "getOrderList",
-        ...Object.values(options),
-      ]);
-    },
-  });
+  // const { mutate: sendAcceptMailMutate, isLoading } = useMutation({
+  //   mutationFn: sendMail,
+  //   onMutate: () => onOpenChange(),
+  //   onSuccess: async () => {
+  //     toast("확인 메일을 전송하였습니다.", { type: "success" });
+  //   },
+  //   onError: () => {
+  //     toast("확인 메일 전송에 실패하였습니다.", { type: "error" });
+  //   },
+  //   onSettled: () => {
+  //     queryClient.invalidateQueries([
+  //       "getOrderList",
+  //       ...Object.values(options),
+  //     ]);
+  //   },
+  // });
 
   const getIsReservation = (details: ColorMeOrder["details"]) => {
     const isReservation = !!details.find(({ product_name: productName }) =>
@@ -158,16 +154,16 @@ const Order = () => {
     insertOrderMutate(selectedKeysArr as string[]);
   };
 
-  const handleSendMail = useCallback(() => {
-    if (!selectedKeysArr.length) {
-      return toast("주문건을 선택해주세요.", { type: "warning" });
-    }
+  // const handleSendMail = useCallback(() => {
+  //   if (!selectedKeysArr.length) {
+  //     return toast("주문건을 선택해주세요.", { type: "warning" });
+  //   }
 
-    sendAcceptMailMutate({
-      itemIds: selectedKeysArr as number[],
-      type: "accepted",
-    });
-  }, [selectedKeysArr]);
+  //   sendAcceptMailMutate({
+  //     itemIds: selectedKeysArr as number[],
+  //     type: "accepted",
+  //   });
+  // }, [selectedKeysArr]);
 
   const renderCell = useCallback((item: OneOf<typeof allOrders>, key: Key) => {
     const cellValue = item[key as keyof typeof item];
@@ -282,7 +278,7 @@ const Order = () => {
           시트생성
         </Button>
 
-        <Button fullWidth disabled={isLoading} onClick={onOpen}>
+        {/* <Button fullWidth disabled={isLoading} onClick={onOpen}>
           {isLoading ? <Spinner color="white" /> : "확인 메일 보내기"}
         </Button>
 
@@ -296,7 +292,7 @@ const Order = () => {
               </Button>
             </ModalFooter>
           </ModalContent>
-        </Modal>
+        </Modal> */}
       </div>
     </div>
   );
