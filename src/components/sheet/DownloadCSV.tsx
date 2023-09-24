@@ -32,12 +32,10 @@ export const DownloadCSV = ({ sales }: { sales?: ColorMeOrder[] }) => {
 
     const saleDeliveries = sales.flatMap(getDeliveryDataFromOrder);
 
-    console.log(saleDeliveries);
+    if (saleDeliveries.length > 40) {
+      const chunkSales = chunkArray(saleDeliveries, 40);
 
-    if (saleDeliveries.length > 35) {
-      const chunkSales = chunkArray(saleDeliveries, 35);
-
-      console.log(chunkSales);
+      chunkSales.forEach((chunk) => downloadCSV(chunk));
     } else {
       downloadCSV(saleDeliveries);
     }
