@@ -10,13 +10,8 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  useDisclosure,
 } from "@nextui-org/react";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { Key, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
@@ -25,9 +20,6 @@ import { ColorMeOrder } from "~/types/colorMe";
 import { OneOf } from "~/types/common";
 
 const Order = () => {
-  const queryClient = useQueryClient();
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [hideReservation, setHideReservation] = useState(false);
   const [options, setOptions] = useState<{
@@ -78,23 +70,6 @@ const Order = () => {
       toast("시트를 생성하는데 실패하였습니다.", { type: "error" });
     },
   });
-
-  // const { mutate: sendAcceptMailMutate, isLoading } = useMutation({
-  //   mutationFn: sendMail,
-  //   onMutate: () => onOpenChange(),
-  //   onSuccess: async () => {
-  //     toast("확인 메일을 전송하였습니다.", { type: "success" });
-  //   },
-  //   onError: () => {
-  //     toast("확인 메일 전송에 실패하였습니다.", { type: "error" });
-  //   },
-  //   onSettled: () => {
-  //     queryClient.invalidateQueries([
-  //       "getOrderList",
-  //       ...Object.values(options),
-  //     ]);
-  //   },
-  // });
 
   const getIsReservation = (details: ColorMeOrder["details"]) => {
     const isReservation = !!details.find(({ product_name: productName }) =>
@@ -153,17 +128,6 @@ const Order = () => {
 
     insertOrderMutate(selectedKeysArr as string[]);
   };
-
-  // const handleSendMail = useCallback(() => {
-  //   if (!selectedKeysArr.length) {
-  //     return toast("주문건을 선택해주세요.", { type: "warning" });
-  //   }
-
-  //   sendAcceptMailMutate({
-  //     itemIds: selectedKeysArr as number[],
-  //     type: "accepted",
-  //   });
-  // }, [selectedKeysArr]);
 
   const renderCell = useCallback((item: OneOf<typeof allOrders>, key: Key) => {
     const cellValue = item[key as keyof typeof item];
@@ -273,27 +237,14 @@ const Order = () => {
         </TableBody>
       </Table>
 
-      <div className="flex gap-4 sticky bottom-4">
-        <Button onClick={handleCreateSheet} fullWidth color="primary">
-          시트생성
-        </Button>
-
-        {/* <Button fullWidth disabled={isLoading} onClick={onOpen}>
-          {isLoading ? <Spinner color="white" /> : "확인 메일 보내기"}
-        </Button>
-
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-          <ModalContent>
-            <ModalHeader>확인 메일을 전송하시겠습니까?</ModalHeader>
-
-            <ModalFooter>
-              <Button size="sm" color="primary" onPress={handleSendMail}>
-                전송
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal> */}
-      </div>
+      <Button
+        onClick={handleCreateSheet}
+        fullWidth
+        color="primary"
+        className="flex gap-4 sticky bottom-4"
+      >
+        시트생성
+      </Button>
     </div>
   );
 };
