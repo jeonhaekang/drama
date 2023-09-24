@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ColorMeMeta, ColorMeOrder } from "~/types/colorMe";
 import { toQueryString } from "~/utils";
@@ -6,7 +7,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const defaultParams = { limit: 100, canceled: false } as const;
+  const threeMonthAgo = dayjs().subtract(3, "month");
+
+  const defaultParams = {
+    limit: 100,
+    canceled: false,
+    after: threeMonthAgo.format("YYYY-MM-DD"),
+  } as const;
 
   const optionalParams = (req.query as { [key: string]: string }) ?? {};
 
