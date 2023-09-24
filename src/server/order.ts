@@ -81,6 +81,8 @@ export const updateSlipNumber = async ({
 };
 
 export const insertOrders = async (itemIds: string[]) => {
+  console.log("itemIds", itemIds);
+
   const { data: sheet, error } = await supabase
     .from("orderSheets")
     .insert({})

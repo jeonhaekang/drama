@@ -1,7 +1,7 @@
 import { Button } from "@nextui-org/react";
 import { toast } from "react-toastify";
 import { ColorMeOrder } from "~/types/colorMe";
-import { downloadCSV } from "~/utils";
+import { chunkArray, downloadCSV } from "~/utils";
 
 export const DownloadCSV = ({ sales }: { sales?: ColorMeOrder[] }) => {
   const formatPostal = (postal: string): string => {
@@ -32,7 +32,15 @@ export const DownloadCSV = ({ sales }: { sales?: ColorMeOrder[] }) => {
 
     const saleDeliveries = sales.flatMap(getDeliveryDataFromOrder);
 
-    downloadCSV(saleDeliveries);
+    console.log(saleDeliveries);
+
+    if (saleDeliveries.length > 35) {
+      const chunkSales = chunkArray(saleDeliveries, 35);
+
+      console.log(chunkSales);
+    } else {
+      downloadCSV(saleDeliveries);
+    }
   };
 
   return <Button onClick={handleDownloadCSV}>CSV Download</Button>;

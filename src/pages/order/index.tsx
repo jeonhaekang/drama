@@ -118,13 +118,17 @@ const Order = () => {
       _selectedKeys = allOrders.map((order) => order.id);
     }
 
+    console.log(selectedKeys);
+
     return _selectedKeys;
-  }, [selectedKeys]);
+  }, [selectedKeys, allOrders]);
 
   const handleCreateSheet = () => {
     if (!selectedKeysArr.length) {
       return toast("주문건을 선택해주세요.", { type: "warning" });
     }
+
+    console.log(selectedKeysArr);
 
     insertOrderMutate(selectedKeysArr as string[]);
   };
@@ -155,7 +159,6 @@ const Order = () => {
         );
 
       case "delivered":
-        console.log(cellValue);
         return (
           <Chip variant="flat" color={cellValue ? "success" : "danger"}>
             {cellValue ? "済" : "未"}
