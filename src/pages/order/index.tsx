@@ -150,7 +150,7 @@ const Order = () => {
       case "accept":
         return (
           <Chip variant="flat" color={cellValue ? "success" : "danger"}>
-            {cellValue ? "전송" : "미전송"}
+            {cellValue ? "済" : "未"}
           </Chip>
         );
 
@@ -158,7 +158,7 @@ const Order = () => {
         console.log(cellValue);
         return (
           <Chip variant="flat" color={cellValue ? "success" : "danger"}>
-            {cellValue ? "완료" : "미완료"}
+            {cellValue ? "済" : "未"}
           </Chip>
         );
 
