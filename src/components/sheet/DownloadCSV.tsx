@@ -6,7 +6,7 @@ import { downloadCSV } from "~/utils";
 export const DownloadCSV = ({ sales }: { sales?: ColorMeOrder[] }) => {
   const formatPostal = (postal: string): string => {
     return postal.startsWith("0")
-      ? [postal.slice(1, 4), postal.slice(4)].join("-")
+      ? [postal.slice(0, 3), postal.slice(3)].join("-")
       : postal;
   };
 

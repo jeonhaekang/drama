@@ -148,7 +148,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
 
       <CardFooter>
         <div className="flex flex-col gap-2">
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {!isEqualAddress && (
               <Chip variant="dot" color="warning" size="sm">
                 {deliveries[0].name}
