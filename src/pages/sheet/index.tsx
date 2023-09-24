@@ -9,10 +9,12 @@ import {
 } from "@nextui-org/table";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { Key, useCallback } from "react";
 import { selectSheets } from "~/server/order";
 import { OneOf } from "~/types/common";
+import { requiredSession } from "~/utils";
 
 const Sheet = () => {
   const router = useRouter();
@@ -68,3 +70,11 @@ const Sheet = () => {
 };
 
 export default Sheet;
+
+export const getServerSideProps: GetServerSideProps = requiredSession(
+  async (_, token) => {
+    return {
+      props: { token },
+    };
+  }
+);

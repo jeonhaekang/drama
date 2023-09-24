@@ -13,11 +13,13 @@ import {
 } from "@nextui-org/react";
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import { GetServerSideProps } from "next";
 import { Key, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { getOrderList, insertOrders } from "~/server/order";
 import { ColorMeOrder } from "~/types/colorMe";
 import { OneOf } from "~/types/common";
+import { requiredSession } from "~/utils";
 
 const Order = () => {
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
@@ -250,3 +252,11 @@ const Order = () => {
 };
 
 export default Order;
+
+export const getServerSideProps: GetServerSideProps = requiredSession(
+  async (_, token) => {
+    return {
+      props: { token },
+    };
+  }
+);

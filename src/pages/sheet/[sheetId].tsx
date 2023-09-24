@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
+import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { DownloadCSV, OrderCard, OrderCardSkeleton } from "~/components/sheet";
 import { selectSheet } from "~/server/order";
+import { requiredSession } from "~/utils";
 
 const SheetDetail = () => {
   const router = useRouter();
@@ -30,3 +32,11 @@ const SheetDetail = () => {
 };
 
 export default SheetDetail;
+
+export const getServerSideProps: GetServerSideProps = requiredSession(
+  async (_, token) => {
+    return {
+      props: { token },
+    };
+  }
+);

@@ -7,13 +7,14 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/table";
+import { GetServerSideProps } from "next";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import srtParser2, { Line } from "srt-parser-2";
 import { LangDropdown } from "~/components";
 import { useImmutableState } from "~/hooks";
 import { translate } from "~/server/papago";
-import { chunkArray, downloadSrt } from "~/utils";
+import { chunkArray, downloadSrt, requiredSession } from "~/utils";
 import { readFile } from "~/utils/file";
 
 const SEPARATOR = "\n\n";
@@ -181,3 +182,11 @@ const Sub = () => {
 };
 
 export default Sub;
+
+export const getServerSideProps: GetServerSideProps = requiredSession(
+  async (_, token) => {
+    return {
+      props: { token },
+    };
+  }
+);

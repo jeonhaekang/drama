@@ -1,4 +1,4 @@
-import { setCookie } from "cookies-next";
+import { hasCookie, setCookie } from "cookies-next";
 import { GetServerSideProps } from "next";
 import { getToken } from "~/server/auth";
 
@@ -25,6 +25,14 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       redirect: {
         destination: "/home",
+        statusCode: 302,
+      },
+    };
+  }
+  if (!hasCookie("token", { req, res })) {
+    return {
+      redirect: {
+        destination: "/",
         statusCode: 302,
       },
     };
