@@ -21,6 +21,10 @@ const SheetDetail = () => {
       <DownloadCSV sales={orders?.sales} />
 
       <div className="flex flex-col gap-4 my-4">
+        <p className="text-default-400 text-small">
+          총 주문: {orders?.sales.length ?? 0}
+        </p>
+
         {orders ? (
           orders.sales.map((sale) => <OrderCard key={sale.id} sale={sale} />)
         ) : (
