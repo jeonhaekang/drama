@@ -52,7 +52,7 @@ const Order = () => {
     queryFn: ({ pageParam = 0 }) => {
       return getOrderList({
         ...options,
-        limit: 60,
+        limit: 100,
         offset: pageParam,
       });
     },
@@ -96,7 +96,7 @@ const Order = () => {
         details,
         paid,
         accepted_mail_state: acceptState,
-        delivered_mail_state: deliveryState,
+        delivered,
       }) => ({
         id,
         name: customer.name,
@@ -104,14 +104,12 @@ const Order = () => {
         reservation: getIsReservation(details),
         paid,
         accept: acceptState === "sent",
-        delivery: deliveryState === "sent",
+        delivered,
       })
     );
 
     return __orders;
   }, [hideReservation, orders]);
-
-  const totalCount = useMemo(() => orders?.pages[0].meta.total, [orders]);
 
   const selectedKeysArr = useMemo(() => {
     let _selectedKeys = Array.from(selectedKeys);
@@ -150,10 +148,17 @@ const Order = () => {
         );
 
       case "accept":
-      case "delivery":
         return (
           <Chip variant="flat" color={cellValue ? "success" : "danger"}>
-            {cellValue ? "발송" : "미발송"}
+            {cellValue ? "전송" : "미전송"}
+          </Chip>
+        );
+
+      case "delivered":
+        console.log(cellValue);
+        return (
+          <Chip variant="flat" color={cellValue ? "success" : "danger"}>
+            {cellValue ? "완료" : "미완료"}
           </Chip>
         );
 
@@ -175,13 +180,8 @@ const Order = () => {
           미확인 주문건만 보기
         </Checkbox>
 
-        <Checkbox
-          value="delivered_mail_state"
-          onChange={() =>
-            handleChangeOptions("delivered_mail_state", "not_yet")
-          }
-        >
-          미발송 주문건만 보기
+        <Checkbox onChange={() => handleChangeOptions("delivered", false)}>
+          미배송 주문건만 보기
         </Checkbox>
 
         <Checkbox onChange={() => handleChangeOptions("paid", true)}>
@@ -195,7 +195,7 @@ const Order = () => {
         </Checkbox>
       </div>
 
-      <p className="text-default-400 text-small">총 주문: {totalCount}</p>
+      <p className="text-default-400 text-small">총 주문: {allOrders.length}</p>
 
       <Table
         selectionMode="multiple"
@@ -222,7 +222,7 @@ const Order = () => {
             { key: "reservation", label: "주문" },
             { key: "paid", label: "결제" },
             { key: "accept", label: "확인 메일" },
-            { key: "delivery", label: "발송 메일" },
+            { key: "delivered", label: "배송 상태" },
           ]}
         >
           {(column) => (
