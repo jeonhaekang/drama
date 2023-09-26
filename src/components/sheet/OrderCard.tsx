@@ -186,7 +186,10 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
         <form
           className="flex gap-2"
           onSubmit={form.handleSubmit(({ slipNumber }) =>
-            updateSlipNumberMutate({ order: sale, slipNumber })
+            updateSlipNumberMutate({
+              order: sale,
+              slipNumber: slipNumber.trim(),
+            })
           )}
         >
           <Input
