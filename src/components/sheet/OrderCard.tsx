@@ -30,7 +30,6 @@ import { isEqualString } from "~/utils";
 export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
   const {
     id,
-    memo,
     customer,
     details,
     make_date: date,
@@ -43,10 +42,14 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
   const router = useRouter();
 
   const sheetId = router.query.sheetId as string;
+
   const deliveryAddress = `${deliveries[0].address1} ${
     deliveries[0].address2 ?? ""
   }`;
+
   const isValidAddress = /[\d０-９]/.test(deliveryAddress);
+
+  const memo = deliveries[0].memo;
 
   const form = useForm<{ slipNumber: string }>({
     defaultValues: { slipNumber: deliveries[0].slip_number },
@@ -116,7 +119,10 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
       {memo && (
         <>
           <Divider />
-          <p className="text-orange-300">{memo}</p>
+
+          <CardHeader className="text-sm">
+            <p className="text-orange-300">{memo}</p>
+          </CardHeader>
         </>
       )}
 
