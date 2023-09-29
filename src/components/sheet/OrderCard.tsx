@@ -20,7 +20,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { memo, useCallback } from "react";
+import { memo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { deleteOrderItem, updateSlipNumber } from "~/server/order";
@@ -34,9 +34,6 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
     details,
     make_date: date,
     sale_deliveries: deliveries,
-    accepted_mail_state: acceptedState,
-    delivered_mail_state: deliveredState,
-    paid,
   } = sale;
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -44,11 +41,15 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
+  const sheetId = router.query.sheetId as string;
+  const deliveryAddress = `${deliveries[0].address1} ${
+    deliveries[0].address2 ?? ""
+  }`;
+  const isValidAddress = /[\d０-９]/.test(deliveryAddress);
+
   const form = useForm<{ slipNumber: string }>({
     defaultValues: { slipNumber: deliveries[0].slip_number },
   });
-
-  const sheetId = router.query.sheetId as string;
 
   const { mutate: deleteOrderItemMutate } = useMutation({
     mutationFn: deleteOrderItem,
@@ -89,16 +90,6 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
     form.watch("slipNumber") !== deliveries[0].slip_number &&
     form.watch("slipNumber");
 
-  const getChipColor = useCallback((state: "not_yet" | "sent" | "pass") => {
-    switch (state) {
-      case "not_yet":
-        return "danger";
-
-      default:
-        return "success";
-    }
-  }, []);
-
   return (
     <CardContainer>
       <CardHeader>
@@ -106,6 +97,14 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
           <p className="text-sm text-default-500">{id}</p>
 
           <p>{customer.name}</p>
+
+          <p className="text-sm text-default-500">{deliveryAddress}</p>
+
+          {!isValidAddress && (
+            <p className="text-sm text-red-600">
+              번지수가 주소에 없습니다. 주소를 확인해주세요.
+            </p>
+          )}
 
           <p className="text-sm text-default-400">
             {dayjs.unix(date).format("YYYY-MM-DD")}
@@ -144,41 +143,23 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
         )}
       </CardBody>
 
-      <Divider />
+      {!isEqualAddress && (
+        <>
+          <Divider />
 
-      <CardFooter>
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2 flex-wrap">
-            {!isEqualAddress && (
+          <CardFooter>
+            <div className="flex gap-2 flex-wrap">
               <Chip variant="dot" color="warning" size="sm">
                 {deliveries[0].name}
               </Chip>
-            )}
 
-            <Chip size="sm" variant="dot" color={getChipColor(acceptedState)}>
-              확인 메일&nbsp;
-              {acceptedState === "not_yet" && "미전송"}
-              {acceptedState === "sent" && "전송"}
-            </Chip>
-
-            <Chip size="sm" variant="dot" color={getChipColor(deliveredState)}>
-              발송 메일&nbsp;
-              {deliveredState === "not_yet" && "미전송"}
-              {deliveredState === "sent" && "전송"}
-            </Chip>
-
-            <Chip size="sm" variant="dot" color={paid ? "success" : "danger"}>
-              {paid ? "결제완료" : "미결제"}
-            </Chip>
-          </div>
-
-          {!isEqualAddress && (
-            <p className="text-sm text-red-600">
-              주문지와 배송지가 다르니 주의하세요.
-            </p>
-          )}
-        </div>
-      </CardFooter>
+              <p className="text-sm text-red-600">
+                주문지와 배송지가 다르니 주의하세요.
+              </p>
+            </div>
+          </CardFooter>
+        </>
+      )}
 
       <Divider />
 
