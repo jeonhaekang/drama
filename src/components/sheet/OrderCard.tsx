@@ -99,8 +99,6 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
 
           <p>{customer.name}</p>
 
-          <p>{memo}</p>
-
           <p className="text-sm text-default-500">{deliveryAddress}</p>
 
           {!isValidAddress && (
@@ -118,7 +116,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
       {memo && (
         <>
           <Divider />
-          <p>{memo}</p>
+          <p className="text-orange-300">{memo}</p>
         </>
       )}
 
