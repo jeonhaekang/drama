@@ -30,6 +30,7 @@ import { isEqualString } from "~/utils";
 export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
   const {
     id,
+    memo,
     customer,
     details,
     make_date: date,
@@ -98,6 +99,8 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
 
           <p>{customer.name}</p>
 
+          <p>{memo}</p>
+
           <p className="text-sm text-default-500">{deliveryAddress}</p>
 
           {!isValidAddress && (
@@ -111,6 +114,13 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
           </p>
         </div>
       </CardHeader>
+
+      {memo && (
+        <>
+          <Divider />
+          <p>{memo}</p>
+        </>
+      )}
 
       <Divider />
 
