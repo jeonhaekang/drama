@@ -43,13 +43,15 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
 
   const sheetId = router.query.sheetId as string;
 
+  const customerAddress = `${customer.address1} ${customer.address2 ?? ""}`;
+
   const deliveryAddress = `${deliveries[0].address1} ${
     deliveries[0].address2 ?? ""
   }`;
 
-  const isValidAddress = /[\d０-９]/.test(deliveryAddress);
+  const isEqualAddress = isEqualString(customerAddress, deliveryAddress);
 
-  const memo = deliveries[0].memo;
+  const isValidAddress = /[\d０-９]/.test(deliveryAddress);
 
   const form = useForm<{ slipNumber: string }>({
     defaultValues: { slipNumber: deliveries[0].slip_number },
@@ -85,15 +87,6 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
     },
   });
 
-  const isEqualAddress = isEqualString(
-    `${customer.address1} ${customer.address2 ?? ""}`,
-    `${deliveries[0].address1} ${deliveries[0].address2 ?? ""}`
-  );
-
-  const isEdit =
-    form.watch("slipNumber") !== deliveries[0].slip_number &&
-    form.watch("slipNumber");
-
   return (
     <CardContainer>
       <CardHeader>
@@ -116,12 +109,14 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
         </div>
       </CardHeader>
 
-      {memo && (
+      {deliveries[0].memo && (
         <>
           <Divider />
 
           <CardHeader className="text-sm">
-            <p className="text-orange-300">{memo}</p>
+            <p className="text-orange-300 whitespace-pre-wrap">
+              {deliveries[0].memo}
+            </p>
           </CardHeader>
         </>
       )}
@@ -193,12 +188,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
             {...form.register("slipNumber")}
           />
 
-          <Button
-            type="submit"
-            size="sm"
-            color={isEdit ? "primary" : "default"}
-            disabled={!isEdit}
-          >
+          <Button type="submit" size="sm">
             등록
           </Button>
         </form>
