@@ -92,9 +92,12 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
       <CardHeader>
         <div>
           <p className="text-sm text-default-500">{id}</p>
-
-          <p>{customer.name}</p>
-
+          <p>
+            {customer.name}
+            <span className="text-xs text-default-400 ml-2">
+              {customer.furigana}
+            </span>
+          </p>
           <p className="text-sm text-default-500">{deliveryAddress}</p>
 
           {!isValidAddress && (
