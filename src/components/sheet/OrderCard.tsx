@@ -14,6 +14,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Spinner,
   useDisclosure,
 } from "@nextui-org/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -77,7 +78,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
     },
   });
 
-  const { mutate: updateSlipNumberMutate } = useMutation({
+  const { mutate: updateSlipNumberMutate, isLoading } = useMutation({
     mutationFn: updateSlipNumber,
     onSuccess: () => {
       toast("송장을 등록하였습니다.", { type: "success" });
@@ -86,6 +87,8 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
       toast("등록에 실패하였습니다.", { type: "error" });
     },
   });
+
+  console.log(isLoading);
 
   return (
     <CardContainer>
@@ -191,8 +194,8 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
             {...form.register("slipNumber")}
           />
 
-          <Button type="submit" size="sm">
-            등록
+          <Button type="submit" size="sm" color="primary" disabled={isLoading}>
+            {isLoading ? <Spinner color="white" size="sm" /> : "등록"}
           </Button>
         </form>
 
