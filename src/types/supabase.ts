@@ -108,6 +108,27 @@ export interface Database {
           }
         ]
       }
+      subWords: {
+        Row: {
+          createdAt: string
+          end: string
+          id: number
+          start: string
+        }
+        Insert: {
+          createdAt?: string
+          end: string
+          id?: number
+          start: string
+        }
+        Update: {
+          createdAt?: string
+          end?: string
+          id?: number
+          start?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,4 +1,11 @@
-import { Button, Chip, Spinner } from "@nextui-org/react";
+import {
+  Button,
+  Chip,
+  Select,
+  SelectItem,
+  Selection,
+  Spinner,
+} from "@nextui-org/react";
 import {
   Table,
   TableBody,
@@ -11,7 +18,6 @@ import { GetServerSideProps } from "next";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import srtParser2, { Line } from "srt-parser-2";
-import { LangDropdown } from "~/components";
 import { useImmutableState } from "~/hooks";
 import { translate } from "~/server/papago";
 import { chunkArray, downloadSrt, requiredSession } from "~/utils";
@@ -19,15 +25,22 @@ import { readFile } from "~/utils/file";
 
 const SEPARATOR = "\n\n";
 
+const LANGUAGE_MAP = {
+  ko: "한국어",
+  en: "영어",
+  ja: "일본어",
+  "zh-CN": "중국어 간체",
+  "zh-TW": "중국어 번체",
+} as const;
+
 const Sub = () => {
   const form = useForm<{ files: FileList }>();
 
   const [isLoading, setIsLoading] = useState(false);
   const [total, setTotal] = useState(0);
-  const [options, setOptions] = useImmutableState({
-    source: "ko",
-    target: "ja",
-  });
+
+  const [source, setSource] = useState<Selection>(new Set(["ko"]));
+  const [target, setTarget] = useState<Selection>(new Set(["ja"]));
 
   const [progress, setProgress] = useImmutableState<{
     in?: string;
@@ -48,8 +61,8 @@ const Sub = () => {
       const combinedText = chunk.map((srt) => srt.text).join(SEPARATOR);
 
       const { translatedText } = await translate({
-        source: options.source,
-        target: options.target,
+        source: [...source].join(),
+        target: [...target].join(),
         text: combinedText,
       });
 
@@ -114,17 +127,31 @@ const Sub = () => {
       })}
     >
       <div className="flex gap-4">
-        <LangDropdown
+        <Select
+          items={Object.entries(LANGUAGE_MAP)}
           label="출발 언어"
-          defaultLang={options.source}
-          onChangeLang={(lang) => setOptions({ source: lang })}
-        />
+          selectedKeys={source}
+          onSelectionChange={setSource}
+        >
+          {([value, label]) => (
+            <SelectItem key={value} value={value}>
+              {label}
+            </SelectItem>
+          )}
+        </Select>
 
-        <LangDropdown
+        <Select
+          items={Object.entries(LANGUAGE_MAP)}
           label="도착 언어"
-          defaultLang={options.target}
-          onChangeLang={(lang) => setOptions({ target: lang })}
-        />
+          selectedKeys={target}
+          onSelectionChange={setTarget}
+        >
+          {([value, label]) => (
+            <SelectItem key={value} value={value}>
+              {label}
+            </SelectItem>
+          )}
+        </Select>
       </div>
 
       <Table
