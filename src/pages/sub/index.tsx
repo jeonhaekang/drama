@@ -14,6 +14,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
+  getKeyValue,
 } from "@nextui-org/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetServerSideProps } from "next";
@@ -184,27 +185,27 @@ const Sub = () => {
             </Button>
           </form>
         }
+        onRowAction={(id) => {
+          if (confirm("삭제하시겠습니까?")) deleteWord(id as number);
+        }}
       >
-        <TableHeader>
-          <TableColumn>출발 단어</TableColumn>
-          <TableColumn>도착 단어</TableColumn>
-          <TableColumn width={100}>삭제</TableColumn>
+        <TableHeader
+          columns={[
+            { key: "start", label: "출발 단어" },
+            { key: "end", label: "도착 단어" },
+          ]}
+        >
+          {(column) => (
+            <TableColumn key={column.key}>{column.label}</TableColumn>
+          )}
         </TableHeader>
 
         <TableBody items={subWords}>
           {(word) => (
-            <TableRow>
-              <TableCell>{word.start}</TableCell>
-              <TableCell>{word.end}</TableCell>
-              <TableCell>
-                <Button
-                  size="sm"
-                  color="danger"
-                  onClick={() => deleteWord(word.id)}
-                >
-                  삭제
-                </Button>
-              </TableCell>
+            <TableRow key={word.id}>
+              {(columnKey) => (
+                <TableCell>{getKeyValue(word, columnKey)}</TableCell>
+              )}
             </TableRow>
           )}
         </TableBody>
