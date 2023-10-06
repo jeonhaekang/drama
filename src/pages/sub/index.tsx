@@ -1,6 +1,7 @@
 import {
   Button,
   Chip,
+  Divider,
   Input,
   Select,
   SelectItem,
@@ -137,162 +138,186 @@ const Sub = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-4">
-        <Select
-          items={Object.entries(LANGUAGE_MAP)}
-          label="출발 언어"
-          selectedKeys={source}
-          onSelectionChange={setSource}
-        >
-          {([value, label]) => (
-            <SelectItem key={value} value={value}>
-              {label}
-            </SelectItem>
-          )}
-        </Select>
+      <div>
+        <h2 className="text-xl">언어 선택</h2>
 
-        <Select
-          items={Object.entries(LANGUAGE_MAP)}
-          label="도착 언어"
-          selectedKeys={target}
-          onSelectionChange={setTarget}
-        >
-          {([value, label]) => (
-            <SelectItem key={value} value={value}>
-              {label}
-            </SelectItem>
-          )}
-        </Select>
+        <div className="flex gap-4 mt-4">
+          <Select
+            items={Object.entries(LANGUAGE_MAP)}
+            label="출발 언어"
+            selectedKeys={source}
+            onSelectionChange={setSource}
+          >
+            {([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            )}
+          </Select>
+
+          <Select
+            items={Object.entries(LANGUAGE_MAP)}
+            label="도착 언어"
+            selectedKeys={target}
+            onSelectionChange={setTarget}
+          >
+            {([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            )}
+          </Select>
+        </div>
       </div>
 
-      <Table
-        bottomContent={
-          <form
-            className="flex gap-4"
-            onSubmit={wordForm.handleSubmit((data) => insertWord(data))}
-          >
-            <Input
-              placeholder="출발 단어"
-              {...wordForm.register("start", { required: true })}
-            />
-            <Input
-              placeholder="도착 단어"
-              {...wordForm.register("end", { required: true })}
-            />
+      <Divider />
 
-            <Button type="submit" color="primary">
-              단어 추가
-            </Button>
-          </form>
-        }
-        onRowAction={(id) => {
-          if (confirm("삭제하시겠습니까?")) deleteWord(id as number);
-        }}
-      >
-        <TableHeader
-          columns={[
-            { key: "start", label: "출발 단어" },
-            { key: "end", label: "도착 단어" },
-          ]}
-        >
-          {(column) => (
-            <TableColumn key={column.key}>{column.label}</TableColumn>
-          )}
-        </TableHeader>
+      <div>
+        <h2 className="text-xl">수정 단어 목록</h2>
 
-        <TableBody items={subWords}>
-          {(word) => (
-            <TableRow key={word.id}>
-              {(columnKey) => (
-                <TableCell>{getKeyValue(word, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+        <p className="text-sm text-default-500">
+          등록된 출발 단어는 도착 단어로 일괄 변경됩니다.
+        </p>
 
-      <form
-        className="flex flex-col gap-4"
-        onSubmit={form.handleSubmit(async ({ files }) => {
-          setIsLoading(true);
-
-          const _files = Array.from(files);
-
-          try {
-            for (let i = 0; i < _files.length; i++) {
-              const file = _files[i];
-
-              setProgress({ in: file.name });
-
-              const content = await readFile(_files[i]);
-              let translatedSrt = await translateContent(content as string);
-
-              subWords.forEach((word) => {
-                translatedSrt = translatedSrt.replaceAll(word.start, word.end);
-              });
-
-              downloadSrt(translatedSrt, file.name);
-
-              setProgress((progress) => ({
-                in: undefined,
-                done: [...progress.done, file.name],
-              }));
-            }
-          } catch (error) {}
-
-          setIsLoading(false);
-        })}
-      >
         <Table
-          aria-label="Example table with dynamic content"
+          className="mt-4"
           bottomContent={
-            <input
-              type="file"
-              className="block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary-500 file:py-2 file:px-3 file:text-sm hover:file:bg-primary-600 focus:outline-none disabled:pointer-events-none"
-              multiple
-              accept=".srt"
-              {...form.register("files")}
-            />
+            <form
+              className="flex gap-4"
+              onSubmit={wordForm.handleSubmit((data) => insertWord(data))}
+            >
+              <Input
+                placeholder="출발 단어"
+                {...wordForm.register("start", { required: true })}
+              />
+              <Input
+                placeholder="도착 단어"
+                {...wordForm.register("end", { required: true })}
+              />
+
+              <Button type="submit" color="primary">
+                단어 추가
+              </Button>
+            </form>
           }
+          onRowAction={(id) => {
+            if (confirm("삭제하시겠습니까?")) deleteWord(id as number);
+          }}
         >
-          <TableHeader>
-            <TableColumn>파일명</TableColumn>
-            <TableColumn width={100}>상태</TableColumn>
+          <TableHeader
+            columns={[
+              { key: "start", label: "출발 단어" },
+              { key: "end", label: "도착 단어" },
+            ]}
+          >
+            {(column) => (
+              <TableColumn key={column.key}>{column.label}</TableColumn>
+            )}
           </TableHeader>
 
-          <TableBody emptyContent="파일을 선택해주세요">
-            {Array.from(form.watch("files") ?? []).map((file) => (
-              <TableRow key={file.name}>
-                <TableCell>{file.name}</TableCell>
-
-                <TableCell>
-                  {progress.done.includes(file.name) && (
-                    <Chip variant="flat" size="sm" color="success">
-                      완료
-                    </Chip>
-                  )}
-
-                  {progress.in === file.name && <Spinner size="sm" />}
-                </TableCell>
+          <TableBody items={subWords}>
+            {(word) => (
+              <TableRow key={word.id}>
+                {(columnKey) => (
+                  <TableCell>{getKeyValue(word, columnKey)}</TableCell>
+                )}
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
+      </div>
 
-        <div className="flex gap-4">
-          <span className="text-default-400 text-small">
-            글자 수: {total.toLocaleString()}
-          </span>
+      <Divider />
 
-          <span className="text-default-400 text-small">
-            예상 요금: {Math.floor(total * 0.02).toLocaleString()}원
-          </span>
-        </div>
+      <div>
+        <h2 className="text-xl">번역 파일 목록</h2>
 
-        <Button type="submit" color="primary" disabled={isLoading}>
-          {isLoading ? <Spinner color="white" size="sm" /> : "번역"}
-        </Button>
-      </form>
+        <form
+          className="flex flex-col gap-4 mt-4"
+          onSubmit={form.handleSubmit(async ({ files }) => {
+            setIsLoading(true);
+
+            const _files = Array.from(files);
+
+            try {
+              for (let i = 0; i < _files.length; i++) {
+                const file = _files[i];
+
+                setProgress({ in: file.name });
+
+                const content = await readFile(_files[i]);
+                let translatedSrt = await translateContent(content as string);
+
+                subWords.forEach((word) => {
+                  translatedSrt = translatedSrt.replaceAll(
+                    word.start,
+                    word.end
+                  );
+                });
+
+                downloadSrt(translatedSrt, file.name);
+
+                setProgress((progress) => ({
+                  in: undefined,
+                  done: [...progress.done, file.name],
+                }));
+              }
+            } catch (error) {}
+
+            setIsLoading(false);
+          })}
+        >
+          <Table
+            aria-label="Example table with dynamic content"
+            bottomContent={
+              <input
+                type="file"
+                className="block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary-500 file:py-2 file:px-3 file:text-sm hover:file:bg-primary-600 focus:outline-none disabled:pointer-events-none"
+                multiple
+                accept=".srt"
+                {...form.register("files")}
+              />
+            }
+          >
+            <TableHeader>
+              <TableColumn>파일명</TableColumn>
+              <TableColumn width={100}>상태</TableColumn>
+            </TableHeader>
+
+            <TableBody emptyContent="파일을 선택해주세요">
+              {Array.from(form.watch("files") ?? []).map((file) => (
+                <TableRow key={file.name}>
+                  <TableCell>{file.name}</TableCell>
+
+                  <TableCell>
+                    {progress.done.includes(file.name) && (
+                      <Chip variant="flat" size="sm" color="success">
+                        완료
+                      </Chip>
+                    )}
+
+                    {progress.in === file.name && <Spinner size="sm" />}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          <div className="flex gap-4">
+            <span className="text-default-400 text-small">
+              글자 수: {total.toLocaleString()}
+            </span>
+
+            <span className="text-default-400 text-small">
+              예상 요금: {Math.floor(total * 0.02).toLocaleString()}원
+            </span>
+          </div>
+
+          <Button type="submit" color="primary" disabled={isLoading}>
+            {isLoading ? <Spinner color="white" size="sm" /> : "번역"}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };
