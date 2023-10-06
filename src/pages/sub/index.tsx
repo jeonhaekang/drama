@@ -1,6 +1,7 @@
 import {
   Button,
   Chip,
+  Input,
   Select,
   SelectItem,
   Selection,
@@ -14,11 +15,13 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/table";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetServerSideProps } from "next";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import srtParser2, { Line } from "srt-parser-2";
 import { useImmutableState } from "~/hooks";
+import { supabase } from "~/server/config";
 import { translate } from "~/server/papago";
 import { chunkArray, downloadSrt, requiredSession } from "~/utils";
 import { readFile } from "~/utils/file";
@@ -35,6 +38,9 @@ const LANGUAGE_MAP = {
 
 const Sub = () => {
   const form = useForm<{ files: FileList }>();
+  const wordForm = useForm<{ start: string; end: string }>();
+
+  const queryClient = useQueryClient();
 
   const [isLoading, setIsLoading] = useState(false);
   const [total, setTotal] = useState(0);
@@ -47,6 +53,37 @@ const Sub = () => {
     done: string[];
   }>({
     done: [],
+  });
+
+  const { data: subWords } = useQuery({
+    queryKey: ["subWords"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("subWords").select("*");
+      if (error) throw error;
+
+      return data;
+    },
+    initialData: [],
+  });
+
+  const { mutate: insertWord } = useMutation({
+    mutationFn: async (word: { start: string; end: string }) => {
+      await supabase.from("subWords").insert(word);
+    },
+    onSettled: async () => {
+      queryClient.invalidateQueries(["subWords"]);
+
+      wordForm.reset();
+    },
+  });
+
+  const { mutate: deleteWord } = useMutation({
+    mutationFn: async (id: number) => {
+      await supabase.from("subWords").delete().eq("id", id);
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries(["subWords"]);
+    },
   });
 
   const translateContent = async (content: string) => {
@@ -98,34 +135,7 @@ const Sub = () => {
   }, [updatedTotal]);
 
   return (
-    <form
-      className="flex flex-col gap-4"
-      onSubmit={form.handleSubmit(async ({ files }) => {
-        setIsLoading(true);
-
-        const _files = Array.from(files);
-
-        try {
-          for (let i = 0; i < _files.length; i++) {
-            const file = _files[i];
-
-            setProgress({ in: file.name });
-
-            const content = await readFile(_files[i]);
-            const translatedSrt = await translateContent(content as string);
-
-            downloadSrt(translatedSrt, file.name);
-
-            setProgress((progress) => ({
-              in: undefined,
-              done: [...progress.done, file.name],
-            }));
-          }
-        } catch (error) {}
-
-        setIsLoading(false);
-      })}
-    >
+    <div className="flex flex-col gap-4">
       <div className="flex gap-4">
         <Select
           items={Object.entries(LANGUAGE_MAP)}
@@ -155,56 +165,134 @@ const Sub = () => {
       </div>
 
       <Table
-        aria-label="Example table with dynamic content"
         bottomContent={
-          <input
-            type="file"
-            className="block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary-500 file:py-2 file:px-3 file:text-sm hover:file:bg-primary-600 focus:outline-none disabled:pointer-events-none"
-            multiple
-            accept=".srt"
-            {...form.register("files")}
-          />
+          <form
+            className="flex gap-4"
+            onSubmit={wordForm.handleSubmit((data) => insertWord(data))}
+          >
+            <Input
+              placeholder="출발 단어"
+              {...wordForm.register("start", { required: true })}
+            />
+            <Input
+              placeholder="도착 단어"
+              {...wordForm.register("end", { required: true })}
+            />
+
+            <Button type="submit" color="primary">
+              단어 추가
+            </Button>
+          </form>
         }
       >
         <TableHeader>
-          <TableColumn>파일명</TableColumn>
-          <TableColumn width={100} align="end">
-            상태
-          </TableColumn>
+          <TableColumn>출발 단어</TableColumn>
+          <TableColumn>도착 단어</TableColumn>
+          <TableColumn width={100}>삭제</TableColumn>
         </TableHeader>
-        <TableBody emptyContent="파일을 선택해주세요">
-          {Array.from(form.watch("files") ?? []).map((file) => (
-            <TableRow key={file.name}>
-              <TableCell>{file.name}</TableCell>
 
+        <TableBody items={subWords}>
+          {(word) => (
+            <TableRow>
+              <TableCell>{word.start}</TableCell>
+              <TableCell>{word.end}</TableCell>
               <TableCell>
-                {progress.done.includes(file.name) && (
-                  <Chip variant="flat" size="sm" color="success">
-                    완료
-                  </Chip>
-                )}
-
-                {progress.in === file.name && <Spinner size="sm" />}
+                <Button
+                  size="sm"
+                  color="danger"
+                  onClick={() => deleteWord(word.id)}
+                >
+                  삭제
+                </Button>
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
 
-      <div className="flex gap-4">
-        <span className="text-default-400 text-small">
-          글자 수: {total.toLocaleString()}
-        </span>
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={form.handleSubmit(async ({ files }) => {
+          setIsLoading(true);
 
-        <span className="text-default-400 text-small">
-          예상 요금: {Math.floor(total * 0.02).toLocaleString()}원
-        </span>
-      </div>
+          const _files = Array.from(files);
 
-      <Button type="submit" color="primary" disabled={isLoading}>
-        {isLoading ? <Spinner color="white" size="sm" /> : "번역"}
-      </Button>
-    </form>
+          try {
+            for (let i = 0; i < _files.length; i++) {
+              const file = _files[i];
+
+              setProgress({ in: file.name });
+
+              const content = await readFile(_files[i]);
+              let translatedSrt = await translateContent(content as string);
+
+              subWords.forEach((word) => {
+                translatedSrt = translatedSrt.replaceAll(word.start, word.end);
+              });
+
+              downloadSrt(translatedSrt, file.name);
+
+              setProgress((progress) => ({
+                in: undefined,
+                done: [...progress.done, file.name],
+              }));
+            }
+          } catch (error) {}
+
+          setIsLoading(false);
+        })}
+      >
+        <Table
+          aria-label="Example table with dynamic content"
+          bottomContent={
+            <input
+              type="file"
+              className="block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary-500 file:py-2 file:px-3 file:text-sm hover:file:bg-primary-600 focus:outline-none disabled:pointer-events-none"
+              multiple
+              accept=".srt"
+              {...form.register("files")}
+            />
+          }
+        >
+          <TableHeader>
+            <TableColumn>파일명</TableColumn>
+            <TableColumn width={100}>상태</TableColumn>
+          </TableHeader>
+
+          <TableBody emptyContent="파일을 선택해주세요">
+            {Array.from(form.watch("files") ?? []).map((file) => (
+              <TableRow key={file.name}>
+                <TableCell>{file.name}</TableCell>
+
+                <TableCell>
+                  {progress.done.includes(file.name) && (
+                    <Chip variant="flat" size="sm" color="success">
+                      완료
+                    </Chip>
+                  )}
+
+                  {progress.in === file.name && <Spinner size="sm" />}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        <div className="flex gap-4">
+          <span className="text-default-400 text-small">
+            글자 수: {total.toLocaleString()}
+          </span>
+
+          <span className="text-default-400 text-small">
+            예상 요금: {Math.floor(total * 0.02).toLocaleString()}원
+          </span>
+        </div>
+
+        <Button type="submit" color="primary" disabled={isLoading}>
+          {isLoading ? <Spinner color="white" size="sm" /> : "번역"}
+        </Button>
+      </form>
+    </div>
   );
 };
 
