@@ -18,6 +18,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import clsx from "clsx";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -136,25 +137,36 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
             product_name: name,
             product_num: count,
             product_thumbnail_image_url: image,
-          }) => (
-            <Popover key={id}>
-              <PopoverTrigger>
-                <Button variant="light" className="whitespace-normal">
-                  {name} {count}EA
-                </Button>
-              </PopoverTrigger>
+          }) => {
+            const isNotSingle = count !== 1;
 
-              <PopoverContent>
-                <Image
-                  src={image}
-                  alt="image"
-                  width={250}
-                  height={250}
-                  className="rounded-full"
-                />
-              </PopoverContent>
-            </Popover>
-          )
+            return (
+              <Popover key={id}>
+                <PopoverTrigger>
+                  <Button variant="light" className="whitespace-normal">
+                    <span
+                      className={clsx({
+                        "text-warning-600": isNotSingle,
+                        "bg-warning/20": isNotSingle,
+                      })}
+                    >
+                      {name} {count}EA
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent>
+                  <Image
+                    src={image}
+                    alt="image"
+                    width={250}
+                    height={250}
+                    className="rounded-full"
+                  />
+                </PopoverContent>
+              </Popover>
+            );
+          }
         )}
       </CardBody>
 
