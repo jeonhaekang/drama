@@ -13,16 +13,18 @@ export const DownloadCSV = ({ sales }: { sales?: ColorMeOrder[] }) => {
   const getDeliveryDataFromOrder = ({
     sale_deliveries: deliveries,
   }: ColorMeOrder) => {
-    return deliveries.map(({ postal, name, address1, address2 }) => ({
-      お届け先郵便番号: formatPostal(postal),
-      お届け先氏名: name,
-      お届け先敬称: "様",
-      お届け先住所1行目: address1,
-      お届け先住所2行目: address2 ?? "",
-      お届け先住所3行目: "",
-      お届け先住所4行目: "",
-      内容品: "CD",
-    }));
+    return deliveries.map(
+      ({ postal, name, address1, address2, pref_name: pref }) => ({
+        お届け先郵便番号: formatPostal(postal),
+        お届け先氏名: name,
+        お届け先敬称: "様",
+        お届け先住所1行目: `${pref}${address1}`,
+        お届け先住所2行目: address2 ?? "",
+        お届け先住所3行目: "",
+        お届け先住所4行目: "",
+        内容品: "CD",
+      })
+    );
   };
 
   const handleDownloadCSV = () => {
