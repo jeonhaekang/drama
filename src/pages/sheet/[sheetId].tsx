@@ -16,20 +16,16 @@ const SheetDetail = () => {
     enabled: !!sheetId,
   });
 
+  console.log(orders);
+
   return (
     <div>
       <DownloadCSV sales={orders?.sales} />
 
       <div className="flex flex-col gap-4 my-4">
-        <p className="text-default-400 text-small">
-          총 주문: {orders?.sales.length ?? 0}
-        </p>
+        <p className="text-default-400 text-small">총 주문: {orders?.sales.length ?? 0}</p>
 
-        {orders ? (
-          orders.sales.map((sale) => <OrderCard key={sale.id} sale={sale} />)
-        ) : (
-          <OrderCardSkeleton size={5} />
-        )}
+        {orders ? orders.sales.map((sale) => <OrderCard key={sale.id} sale={sale} />) : <OrderCardSkeleton size={5} />}
       </div>
     </div>
   );
@@ -37,10 +33,8 @@ const SheetDetail = () => {
 
 export default SheetDetail;
 
-export const getServerSideProps: GetServerSideProps = requiredSession(
-  async (_, token) => {
-    return {
-      props: { token },
-    };
-  }
-);
+export const getServerSideProps: GetServerSideProps = requiredSession(async (_, token) => {
+  return {
+    props: { token },
+  };
+});

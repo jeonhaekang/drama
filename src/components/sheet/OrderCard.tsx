@@ -30,13 +30,7 @@ import { ColorMeOrder, ColorMeOrderResponse } from "~/types/colorMe";
 import { isEqualString } from "~/utils";
 
 export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
-  const {
-    id,
-    customer,
-    details,
-    make_date: date,
-    sale_deliveries: deliveries,
-  } = sale;
+  const { id, customer, details, make_date: date, sale_deliveries: deliveries } = sale;
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -45,15 +39,9 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
 
   const sheetId = router.query.sheetId as string;
 
-  const customerAddress = `${customer.pref_name}${customer.address1} ${
-    customer.address2 ?? ""
-  }`;
+  const customerAddress = `${customer.pref_name}${customer.address1} ${customer.address2 ?? ""}`;
 
-  const deliveryAddress = `${customer.pref_name}${deliveries[0].address1} ${
-    deliveries[0].address2 ?? ""
-  }`;
-
-  console.log(sale);
+  const deliveryAddress = `${customer.pref_name}${deliveries[0].address1} ${deliveries[0].address2 ?? ""}`;
 
   const isEqualAddress = isEqualString(customerAddress, deliveryAddress);
 
@@ -66,15 +54,12 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
   const { mutate: deleteOrderItemMutate } = useMutation({
     mutationFn: deleteOrderItem,
     onSuccess: (itemId) => {
-      queryClient.setQueryData<ColorMeOrderResponse>(
-        ["selectSheet", sheetId],
-        (data) => {
-          return {
-            ...data,
-            sales: data?.sales.filter((sale) => sale.id !== itemId),
-          } as ColorMeOrderResponse;
-        }
-      );
+      queryClient.setQueryData<ColorMeOrderResponse>(["selectSheet", sheetId], (data) => {
+        return {
+          ...data,
+          sales: data?.sales.filter((sale) => sale.id !== itemId),
+        } as ColorMeOrderResponse;
+      });
 
       toast("주문건을 시트에서 제거하였습니다.", { type: "success" });
     },
@@ -93,8 +78,6 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
     },
   });
 
-  console.log(isLoading);
-
   return (
     <CardContainer>
       <CardHeader>
@@ -102,21 +85,13 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
           <p className="text-sm text-default-500">{id}</p>
           <p>
             {customer.name}
-            <span className="text-xs text-default-400 ml-2">
-              {customer.furigana}
-            </span>
+            <span className="text-xs text-default-400 ml-2">{customer.furigana}</span>
           </p>
           <p className="text-sm text-default-500">{deliveryAddress}</p>
 
-          {!isValidAddress && (
-            <p className="text-sm text-red-600">
-              번지수가 주소에 없습니다. 주소를 확인해주세요.
-            </p>
-          )}
+          {!isValidAddress && <p className="text-sm text-red-600">번지수가 주소에 없습니다. 주소를 확인해주세요.</p>}
 
-          <p className="text-sm text-default-400">
-            {dayjs.unix(date).format("YYYY-MM-DD")}
-          </p>
+          <p className="text-sm text-default-400">{dayjs.unix(date).format("YYYY-MM-DD")}</p>
         </div>
       </CardHeader>
 
@@ -125,9 +100,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
           <Divider />
 
           <CardHeader className="text-sm">
-            <p className="text-orange-300 whitespace-pre-wrap">
-              {deliveries[0].memo}
-            </p>
+            <p className="text-orange-300 whitespace-pre-wrap">{deliveries[0].memo}</p>
           </CardHeader>
         </>
       )}
@@ -135,43 +108,30 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
       <Divider />
 
       <CardBody className="flex flex-col gap-2">
-        {details.map(
-          ({
-            id,
-            product_name: name,
-            product_num: count,
-            product_thumbnail_image_url: image,
-          }) => {
-            const isNotSingle = count !== 1;
+        {details.map(({ id, product_name: name, product_num: count, product_thumbnail_image_url: image }) => {
+          const isNotSingle = count !== 1;
 
-            return (
-              <Popover key={id}>
-                <PopoverTrigger>
-                  <Button variant="light" className="whitespace-normal">
-                    <span
-                      className={clsx({
-                        "text-warning-600": isNotSingle,
-                        "bg-warning/20": isNotSingle,
-                      })}
-                    >
-                      {name} {count}EA
-                    </span>
-                  </Button>
-                </PopoverTrigger>
+          return (
+            <Popover key={id}>
+              <PopoverTrigger>
+                <Button variant="light" className="whitespace-normal">
+                  <span
+                    className={clsx({
+                      "text-warning-600": isNotSingle,
+                      "bg-warning/20": isNotSingle,
+                    })}
+                  >
+                    {name} {count}EA
+                  </span>
+                </Button>
+              </PopoverTrigger>
 
-                <PopoverContent>
-                  <Image
-                    src={image}
-                    alt="image"
-                    width={250}
-                    height={250}
-                    className="rounded-full"
-                  />
-                </PopoverContent>
-              </Popover>
-            );
-          }
-        )}
+              <PopoverContent>
+                <Image src={image} alt="image" width={250} height={250} className="rounded-full" />
+              </PopoverContent>
+            </Popover>
+          );
+        })}
       </CardBody>
 
       {!isEqualAddress && (
@@ -184,9 +144,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
                 {deliveries[0].name}
               </Chip>
 
-              <p className="text-sm text-red-600">
-                주문지와 배송지가 다르니 주의하세요.
-              </p>
+              <p className="text-sm text-red-600">주문지와 배송지가 다르니 주의하세요.</p>
             </div>
           </CardFooter>
         </>
@@ -204,11 +162,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
             })
           )}
         >
-          <Input
-            size="sm"
-            placeholder="송장 번호를 입력해주세요."
-            {...form.register("slipNumber")}
-          />
+          <Input size="sm" placeholder="송장 번호를 입력해주세요." {...form.register("slipNumber")} />
 
           <Button type="submit" size="sm" color="primary" disabled={isLoading}>
             {isLoading ? <Spinner color="white" size="sm" /> : "등록"}
@@ -224,11 +178,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
             <ModalHeader>시트에서 주문건을 삭제하시겠습니까?</ModalHeader>
 
             <ModalFooter>
-              <Button
-                size="sm"
-                color="danger"
-                onPress={() => deleteOrderItemMutate({ itemId: id, sheetId })}
-              >
+              <Button size="sm" color="danger" onPress={() => deleteOrderItemMutate({ itemId: id, sheetId })}>
                 삭제
               </Button>
             </ModalFooter>
