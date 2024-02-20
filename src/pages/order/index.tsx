@@ -28,19 +28,16 @@ const Order = () => {
     [key: string]: string | boolean;
   }>({});
 
-  const handleChangeOptions = useCallback(
-    (key: string, value: string | boolean) => {
-      setOptions((options) => {
-        const _options = { ...options };
+  const handleChangeOptions = useCallback((key: string, value: string | boolean) => {
+    setOptions((options) => {
+      const _options = { ...options };
 
-        if (_options[key]) delete _options[key];
-        else _options[key] = value;
+      if (_options[key]) delete _options[key];
+      else _options[key] = value;
 
-        return _options;
-      });
-    },
-    []
-  );
+      return _options;
+    });
+  }, []);
 
   const {
     data: orders,
@@ -74,9 +71,7 @@ const Order = () => {
   });
 
   const getIsReservation = (details: ColorMeOrder["details"]) => {
-    const isReservation = !!details.find(({ product_name: productName }) =>
-      productName.includes("予約")
-    );
+    const isReservation = !!details.find(({ product_name: productName }) => productName.includes("予約"));
 
     return isReservation;
   };
@@ -89,15 +84,7 @@ const Order = () => {
     }
 
     const __orders = _orders.map(
-      ({
-        id,
-        customer,
-        make_date: makeDate,
-        details,
-        paid,
-        accepted_mail_state: acceptState,
-        delivered,
-      }) => ({
+      ({ id, customer, make_date: makeDate, details, paid, accepted_mail_state: acceptState, delivered }) => ({
         id,
         name: customer.name,
         date: dayjs.unix(makeDate).format("YYYY-MM-DD"),
@@ -173,25 +160,13 @@ const Order = () => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-4 flex-wrap">
-        <Checkbox
-          onChange={() => handleChangeOptions("accepted_mail_state", "not_yet")}
-        >
-          미확인 주문건만 보기
-        </Checkbox>
+        <Checkbox onChange={() => handleChangeOptions("accepted_mail_state", "not_yet")}>미확인 주문건만 보기</Checkbox>
 
-        <Checkbox onChange={() => handleChangeOptions("delivered", false)}>
-          미배송 주문건만 보기
-        </Checkbox>
+        <Checkbox onChange={() => handleChangeOptions("delivered", false)}>미배송 주문건만 보기</Checkbox>
 
-        <Checkbox onChange={() => handleChangeOptions("paid", true)}>
-          결재 완료만 보기
-        </Checkbox>
+        <Checkbox onChange={() => handleChangeOptions("paid", true)}>결재 완료만 보기</Checkbox>
 
-        <Checkbox
-          onChange={(event) => setHideReservation(event.target.checked)}
-        >
-          예약건 숨기기
-        </Checkbox>
+        <Checkbox onChange={(event) => setHideReservation(event.target.checked)}>예약건 숨기기</Checkbox>
       </div>
 
       <p className="text-default-400 text-small">총 주문: {allOrders.length}</p>
@@ -207,9 +182,7 @@ const Order = () => {
               <Spinner color="white" />
             </div>
           ) : (
-            hasNextPage && (
-              <Button onClick={() => fetchNextPage()}>더보기</Button>
-            )
+            hasNextPage && <Button onClick={() => fetchNextPage()}>더보기</Button>
           )
         }
       >
@@ -224,26 +197,17 @@ const Order = () => {
             { key: "delivered", label: "배송 상태" },
           ]}
         >
-          {(column) => (
-            <TableColumn key={column.key}>{column.label}</TableColumn>
-          )}
+          {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
         </TableHeader>
 
         <TableBody items={allOrders} loadingContent={<Spinner color="white" />}>
           {(order) => (
-            <TableRow key={order.id}>
-              {(column) => <TableCell>{renderCell(order, column)}</TableCell>}
-            </TableRow>
+            <TableRow key={order.id}>{(column) => <TableCell>{renderCell(order, column)}</TableCell>}</TableRow>
           )}
         </TableBody>
       </Table>
 
-      <Button
-        onClick={handleCreateSheet}
-        fullWidth
-        color="primary"
-        className="flex gap-4 sticky bottom-4"
-      >
+      <Button onClick={handleCreateSheet} fullWidth color="primary" className="flex gap-4 sticky bottom-4">
         시트생성
       </Button>
     </div>
@@ -252,10 +216,8 @@ const Order = () => {
 
 export default Order;
 
-export const getServerSideProps: GetServerSideProps = requiredSession(
-  async (_, token) => {
-    return {
-      props: { token },
-    };
-  }
-);
+export const getServerSideProps: GetServerSideProps = requiredSession(async (_, token) => {
+  return {
+    props: { token },
+  };
+});
