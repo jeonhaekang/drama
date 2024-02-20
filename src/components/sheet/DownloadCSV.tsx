@@ -21,7 +21,7 @@ export const DownloadCSV = ({ sales }: { sales?: ColorMeOrder[] }) => {
     }));
   };
 
-  const handleDownloadCSV = async () => {
+  const handleDownloadCSV = () => {
     if (!sales) {
       return toast("잠시후 다시 시도해주세요.", { type: "warning" });
     }
@@ -31,13 +31,13 @@ export const DownloadCSV = ({ sales }: { sales?: ColorMeOrder[] }) => {
     if (saleDeliveries.length > 40) {
       const chunkSales = chunkArray(saleDeliveries, 40);
 
-      for (let data of chunkSales) {
-        await downloadCSV(data);
-      }
+      // for (let data of chunkSales) {
+      //   downloadCSV(data)
+      // }
 
-      // chunkSales.forEach((chunk) => downloadCSV(chunk));
+      chunkSales.forEach((chunk, index) => downloadCSV(chunk, index));
     } else {
-      downloadCSV(saleDeliveries);
+      downloadCSV(saleDeliveries, 1);
     }
   };
 

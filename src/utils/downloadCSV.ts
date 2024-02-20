@@ -1,8 +1,6 @@
 import dayjs from "dayjs";
 
-export const downloadCSV = async (
-  data: { [key: string]: string | number }[]
-) => {
+export const downloadCSV = async (data: { [key: string]: string | number }[], index: number) => {
   const response = await fetch("/api/downloadCSV", {
     method: "POST",
     headers: {
@@ -16,7 +14,7 @@ export const downloadCSV = async (
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = dayjs(new Date()).format("YYYY-MM-DD HH:mm") + ".csv";
+  a.download = dayjs(new Date()).format("YYYY-MM-DD HH:mm") + `_${index}` + ".csv";
   a.click();
   window.URL.revokeObjectURL(url);
 };
