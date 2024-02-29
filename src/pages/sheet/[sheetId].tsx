@@ -56,25 +56,27 @@ const SheetDetail = () => {
           <Card>
             <CardHeader>마토메</CardHeader>
 
-            {Object.entries(matome).map(([type, drama]) => (
-              <div key={type}>
-                <Divider />
+            {Object.entries(matome)
+              .sort((a, b) => map[a[0] as keyof typeof map].localeCompare(map[b[0] as keyof typeof map]))
+              .map(([type, drama]) => (
+                <div key={type}>
+                  <Divider />
 
-                <CardBody>
-                  <p className="text-sm text-center mb-3 text-warning-500">{map[type as keyof typeof map]}</p>
+                  <CardBody>
+                    <p className="text-sm text-center mb-3 text-warning-500">{map[type as keyof typeof map]}</p>
 
-                  <div className="flex flex-col gap-3">
-                    {Object.entries(drama)
-                      .sort((a, b) => a[0].split(".")[0].localeCompare(b[0].split(".")[0]))
-                      .map(([name, count]) => (
-                        <p key={name} className="text-sm text-center">
-                          {name} {count}EA
-                        </p>
-                      ))}
-                  </div>
-                </CardBody>
-              </div>
-            ))}
+                    <div className="flex flex-col gap-3">
+                      {Object.entries(drama)
+                        .sort((a, b) => a[0].localeCompare(b[0]))
+                        .map(([name, count]) => (
+                          <p key={name} className="text-sm text-center">
+                            {name} {count}EA
+                          </p>
+                        ))}
+                    </div>
+                  </CardBody>
+                </div>
+              ))}
           </Card>
         )}
 
