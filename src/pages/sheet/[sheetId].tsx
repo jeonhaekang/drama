@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
@@ -19,7 +19,13 @@ const SheetDetail = () => {
 
   const matome = orders?.sales.reduce((acc, sale) => {
     sale.details.forEach(({ product_name }) => {
-      const type = product_name[0] as "C" | "D" | "A" | "B";
+      const _type = ["C", "D", "A", "B"];
+
+      let type = product_name[0] as "C" | "D" | "A" | "B" | "E";
+
+      if (!_type.includes(type)) {
+        type = "E";
+      }
 
       if (!acc[type]) {
         acc[type] = {};
@@ -29,7 +35,15 @@ const SheetDetail = () => {
     });
 
     return acc;
-  }, {} as { C: { [key: string]: number }; D: { [key: string]: number }; A: { [key: string]: number }; B: { [key: string]: number } });
+  }, {} as { C: { [key: string]: number }; D: { [key: string]: number }; A: { [key: string]: number }; B: { [key: string]: number }; E: { [key: string]: number } });
+
+  const map = {
+    A: "자동번역",
+    B: "한국 블루레이",
+    C: "중국",
+    D: "한국 디브이디",
+    E: "기타",
+  } as const;
 
   return (
     <div>
@@ -47,11 +61,17 @@ const SheetDetail = () => {
                 <Divider />
 
                 <CardBody>
-                  {Object.entries(drama).map(([name, count]) => (
-                    <Button key={name} variant="light" className="whitespace-normal">
-                      {name} {count}EA
-                    </Button>
-                  ))}
+                  <p className="text-sm text-center mb-3 text-warning-500">{map[type as keyof typeof map]}</p>
+
+                  <div className="flex flex-col gap-3">
+                    {Object.entries(drama)
+                      .sort((a, b) => a[0].split(".")[0].localeCompare(b[0].split(".")[0]))
+                      .map(([name, count]) => (
+                        <p key={name} className="text-sm text-center">
+                          {name} {count}EA
+                        </p>
+                      ))}
+                  </div>
                 </CardBody>
               </div>
             ))}
