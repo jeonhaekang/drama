@@ -53,6 +53,9 @@ export const updateSlipNumber = async ({ order, slipNumber }: { order: ColorMeOr
     method: "PUT",
     body: JSON.stringify({
       sale: {
+        point_state: "fixed",
+        gmo_point_state: "fixed",
+        yahoo_point_state: "fixed",
         sale_deliveries: [{ ...order.sale_deliveries[0], slip_number: slipNumber, delivered: true }],
       },
     }),
@@ -61,7 +64,6 @@ export const updateSlipNumber = async ({ order, slipNumber }: { order: ColorMeOr
   if (error) throw Error("error");
 
   if (sale.delivered_mail_state === "not_yet") {
-    console.log("send mail");
     sendMail({ itemIds: [order.id as number], type: "delivered" });
   }
 };

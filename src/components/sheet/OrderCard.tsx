@@ -78,6 +78,8 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
     },
   });
 
+  console.log(customer);
+
   return (
     <CardContainer>
       <CardHeader>
@@ -87,6 +89,9 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
             {customer.name}
             <span className="text-xs text-default-400 ml-2">{customer.furigana}</span>
           </p>
+
+          <p className="text-sm text-default-500">{customer.mail}</p>
+
           <p className="text-sm text-default-500">{deliveryAddress}</p>
 
           {!isValidAddress && <p className="text-sm text-red-600">번지수가 주소에 없습니다. 주소를 확인해주세요.</p>}
