@@ -17,7 +17,7 @@ import {
   Spinner,
   useDisclosure,
 } from "@nextui-org/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import Image from "next/image";
@@ -25,7 +25,7 @@ import { useRouter } from "next/router";
 import { memo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { deleteOrderItem, updateSlipNumber } from "~/server/order";
+import { deleteOrderItem, getCustomer, updateSlipNumber } from "~/server/order";
 import { ColorMeOrder, ColorMeOrderResponse } from "~/types/colorMe";
 import { isEqualString } from "~/utils";
 
@@ -50,6 +50,23 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
   const form = useForm<{ slipNumber: string }>({
     defaultValues: { slipNumber: deliveries[0].slip_number },
   });
+
+  const { data } = useQuery({
+    queryFn: () => getCustomer(customer.name),
+    queryKey: [customer.name],
+    enabled: !isValidAddress,
+    select: (data) => {
+      if (data) {
+        const { postal, pref_name, address1, address2 } = data.customers.find((customer: any) =>
+          /[\d０-９]/.test(customer.address1)
+        );
+
+        return `(${postal}) ${pref_name} ${address1} ${address2 ?? ""}`;
+      }
+    },
+  });
+
+  console.log(data);
 
   const { mutate: deleteOrderItemMutate } = useMutation({
     mutationFn: deleteOrderItem,
@@ -78,8 +95,6 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
     },
   });
 
-  console.log(customer);
-
   return (
     <CardContainer>
       <CardHeader>
@@ -94,7 +109,12 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
 
           <p className="text-sm text-default-500">{deliveryAddress}</p>
 
-          {!isValidAddress && <p className="text-sm text-red-600">번지수가 주소에 없습니다. 주소를 확인해주세요.</p>}
+          {!isValidAddress && (
+            <p className="text-sm text-red-600">
+              번지수가 주소에 없습니다. 주소를 확인해주세요.
+              <br />이 주소일 가능성이 있음 {data}
+            </p>
+          )}
 
           <p className="text-sm text-default-400">{dayjs.unix(date).format("YYYY-MM-DD")}</p>
         </div>

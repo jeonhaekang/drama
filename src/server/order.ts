@@ -44,6 +44,13 @@ export const sendMail = async (option: { itemIds: number[]; type: "accepted" | "
 
   if (response.error) throw Error("error");
 };
+export const getCustomer = async (name: string) => {
+  const response = await fetch(`/api/customer?name=${name}`).then((res) => res.json());
+
+  if (response.error) throw Error("error");
+
+  return response;
+};
 
 export const updateSlipNumber = async ({ order, slipNumber }: { order: ColorMeOrder; slipNumber: string }) => {
   const {
