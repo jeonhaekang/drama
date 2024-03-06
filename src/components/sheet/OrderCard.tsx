@@ -112,7 +112,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
           {!isValidAddress && (
             <p className="text-sm text-red-600">
               번지수가 주소에 없습니다. 주소를 확인해주세요.
-              <br />이 주소일 가능성이 있음 {data}
+              <br />아마도 여기 {data}
             </p>
           )}
 
