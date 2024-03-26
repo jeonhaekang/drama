@@ -1,8 +1,9 @@
-import { Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
+import { Button, Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { DownloadCSV, OrderCard, OrderCardSkeleton } from "~/components/sheet";
 import { selectSheet } from "~/server/order";
 import { requiredSession } from "~/utils";
@@ -17,8 +18,9 @@ const map = {
 
 const SheetDetail = () => {
   const router = useRouter();
-
   const sheetId = router.query.sheetId as string;
+
+  const [matomeOpen, setMatomeOpen] = useState(false);
 
   const { data: orders } = useQuery({
     queryFn: () => selectSheet(sheetId),
@@ -55,37 +57,45 @@ const SheetDetail = () => {
 
         {matome && (
           <Card>
-            <CardHeader>마토메</CardHeader>
+            <CardHeader>
+              <div className="flex gap-4 items-center">
+                마토메{" "}
+                <Button size="sm" color="primary" onClick={() => setMatomeOpen((prev) => !prev)}>
+                  {matomeOpen ? "닫기" : "펼치기"}
+                </Button>
+              </div>
+            </CardHeader>
 
-            {Object.entries(matome)
-              .sort((a, b) => a[0].localeCompare(b[0]))
-              .map(([type, drama]) => (
-                <div key={type}>
-                  <Divider />
+            {matomeOpen &&
+              Object.entries(matome)
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .map(([type, drama]) => (
+                  <div key={type}>
+                    <Divider />
 
-                  <CardBody>
-                    <p className="text-sm text-center mb-3 text-warning-500">{type}</p>
+                    <CardBody>
+                      <p className="text-sm text-center mb-3 text-warning-500">{type}</p>
 
-                    <div className="flex flex-col items-center gap-3">
-                      {Object.entries(drama)
-                        .sort((a, b) => a[0].localeCompare(b[0]))
-                        .map(([name, count]) => {
-                          return (
-                            <p
-                              key={name}
-                              className={clsx("text-sm w-fit", {
-                                "text-warning-600": count > 1,
-                                "bg-warning/20": count > 1,
-                              })}
-                            >
-                              {name} {count}EA
-                            </p>
-                          );
-                        })}
-                    </div>
-                  </CardBody>
-                </div>
-              ))}
+                      <div className="flex flex-col items-center gap-3">
+                        {Object.entries(drama)
+                          .sort((a, b) => a[0].localeCompare(b[0]))
+                          .map(([name, count]) => {
+                            return (
+                              <p
+                                key={name}
+                                className={clsx("text-sm w-fit", {
+                                  "text-warning-600": count > 1,
+                                  "bg-warning/20": count > 1,
+                                })}
+                              >
+                                {name} {count}EA
+                              </p>
+                            );
+                          })}
+                      </div>
+                    </CardBody>
+                  </div>
+                ))}
           </Card>
         )}
 
