@@ -18,8 +18,6 @@ function checkTextLength(text: string) {
 }
 
 export const DownloadCSV = ({ sales }: { sales?: ColorMeOrder[] }) => {
-  // console.log(sales);
-
   const formatPostal = (postal: string): string => {
     return postal.startsWith("0") ? [postal.slice(0, 3), postal.slice(3)].join("-") : postal;
   };
@@ -48,14 +46,8 @@ export const DownloadCSV = ({ sales }: { sales?: ColorMeOrder[] }) => {
 
     const saleDeliveries = sales.flatMap(getDeliveryDataFromOrder);
 
-    console.log(saleDeliveries);
-
     if (saleDeliveries.length > 40) {
       const chunkSales = chunkArray(saleDeliveries, 40);
-
-      // for (let data of chunkSales) {
-      //   downloadCSV(data)
-      // }
 
       chunkSales.forEach((chunk, index) => downloadCSV(chunk, index));
     } else {
