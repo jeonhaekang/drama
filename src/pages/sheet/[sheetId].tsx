@@ -1,4 +1,6 @@
+import { Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
+import clsx from "clsx";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { DownloadCSV, OrderCard, OrderCardSkeleton } from "~/components/sheet";
@@ -24,25 +26,25 @@ const SheetDetail = () => {
     enabled: !!sheetId,
   });
 
-  // const matome = orders?.sales.reduce((acc, sale) => {
-  //   sale.details.forEach(({ product_name }) => {
-  //     const _type = ["C", "D", "A", "B"];
+  const matome = orders?.sales.reduce((acc, sale) => {
+    sale.details.forEach(({ product_name, product_num }) => {
+      const _type = ["C", "D", "A", "B"];
 
-  //     let type = product_name[0] as keyof typeof map;
+      let type = product_name[0] as keyof typeof map;
 
-  //     if (!_type.includes(type)) {
-  //       type = "E";
-  //     }
+      if (!_type.includes(type)) {
+        type = "E";
+      }
 
-  //     if (!acc[map[type]]) {
-  //       acc[map[type]] = {};
-  //     }
+      if (!acc[map[type]]) {
+        acc[map[type]] = {};
+      }
 
-  //     acc[map[type]][product_name.trim()] = (acc[map[type]][product_name.trim()] || 0) + 1;
-  //   });
+      acc[map[type]][product_name.trim()] = (acc[map[type]][product_name.trim()] || 0) + product_num;
+    });
 
-  //   return acc;
-  // }, {} as { [key: string]: { [key: string]: number } });
+    return acc;
+  }, {} as { [key: string]: { [key: string]: number } });
 
   return (
     <div>
@@ -51,7 +53,7 @@ const SheetDetail = () => {
       <div className="flex flex-col gap-4 my-4">
         <p className="text-default-400 text-small">총 주문: {orders?.sales.length ?? 0}</p>
 
-        {/* {matome && (
+        {matome && (
           <Card>
             <CardHeader>마토메</CardHeader>
 
@@ -64,20 +66,28 @@ const SheetDetail = () => {
                   <CardBody>
                     <p className="text-sm text-center mb-3 text-warning-500">{type}</p>
 
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col items-center gap-3">
                       {Object.entries(drama)
                         .sort((a, b) => a[0].localeCompare(b[0]))
-                        .map(([name, count]) => (
-                          <p key={name} className="text-sm text-center">
-                            {name} {count}EA
-                          </p>
-                        ))}
+                        .map(([name, count]) => {
+                          return (
+                            <p
+                              key={name}
+                              className={clsx("text-sm w-fit", {
+                                "text-warning-600": count > 1,
+                                "bg-warning/20": count > 1,
+                              })}
+                            >
+                              {name} {count}EA
+                            </p>
+                          );
+                        })}
                     </div>
                   </CardBody>
                 </div>
               ))}
           </Card>
-        )} */}
+        )}
 
         {orders ? orders.sales.map((sale) => <OrderCard key={sale.id} sale={sale} />) : <OrderCardSkeleton size={5} />}
       </div>
