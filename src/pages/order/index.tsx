@@ -23,10 +23,10 @@ import { requiredSession } from "~/utils";
 
 const Order = () => {
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
-  const [hideReservation, setHideReservation] = useState(false);
+  const [hideReservation, setHideReservation] = useState(true);
   const [options, setOptions] = useState<{
     [key: string]: string | boolean;
-  }>({});
+  }>({ delivered: "false", paid: "true" });
 
   const handleChangeOptions = useCallback((key: string, value: string | boolean) => {
     setOptions((options) => {
@@ -162,11 +162,17 @@ const Order = () => {
       <div className="flex gap-4 flex-wrap">
         <Checkbox onChange={() => handleChangeOptions("accepted_mail_state", "not_yet")}>미확인 주문건만 보기</Checkbox>
 
-        <Checkbox onChange={() => handleChangeOptions("delivered", false)}>미배송 주문건만 보기</Checkbox>
+        <Checkbox defaultSelected={!!options?.delivered} onChange={() => handleChangeOptions("delivered", "false")}>
+          미배송 주문건만 보기
+        </Checkbox>
 
-        <Checkbox onChange={() => handleChangeOptions("paid", true)}>결재 완료만 보기</Checkbox>
+        <Checkbox defaultSelected={!!options?.paid} onChange={() => handleChangeOptions("paid", "true")}>
+          결재 완료만 보기
+        </Checkbox>
 
-        <Checkbox onChange={(event) => setHideReservation(event.target.checked)}>예약건 숨기기</Checkbox>
+        <Checkbox defaultSelected={hideReservation} onChange={(event) => setHideReservation(event.target.checked)}>
+          예약건 숨기기
+        </Checkbox>
       </div>
 
       <p className="text-default-400 text-small">총 주문: {allOrders.length}</p>
