@@ -2,6 +2,8 @@ import {
   Button,
   Checkbox,
   Chip,
+  DateInput,
+  Input,
   Selection,
   Spinner,
   Table,
@@ -16,6 +18,7 @@ import dayjs from "dayjs";
 import { GetServerSideProps } from "next";
 import { Key, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
+import { debounce } from "throttle-debounce";
 import { getOrderList, insertOrders } from "~/server/order";
 import { ColorMeOrder } from "~/types/colorMe";
 import { OneOf } from "~/types/common";
@@ -23,7 +26,11 @@ import { requiredSession } from "~/utils";
 
 const Order = () => {
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
+
   const [hideReservation, setHideReservation] = useState(true);
+
+  const [keyword, setKeyword] = useState("");
+
   const [options, setOptions] = useState<{
     [key: string]: string | boolean;
   }>({ delivered: "false", paid: "true" });
@@ -83,6 +90,8 @@ const Order = () => {
       _orders = _orders.filter((order) => !getIsReservation(order.details));
     }
 
+    _orders = _orders.filter((order) => !!order.details.find((detail) => !!detail.product_name.includes(keyword)));
+
     const __orders = _orders.map(
       ({ id, customer, make_date: makeDate, details, paid, accepted_mail_state: acceptState, delivered }) => ({
         id,
@@ -96,7 +105,7 @@ const Order = () => {
     );
 
     return __orders;
-  }, [hideReservation, orders]);
+  }, [hideReservation, keyword, orders]);
 
   const selectedKeysArr = useMemo(() => {
     let _selectedKeys = Array.from(selectedKeys);
@@ -159,6 +168,43 @@ const Order = () => {
 
   return (
     <div className="flex flex-col gap-4">
+      <div>
+        <Input
+          label="검색어"
+          onChange={debounce(1000, (event) => setKeyword(event.target.value))}
+          labelPlacement="outside"
+          placeholder="검색어를 입력해주세요."
+        />
+      </div>
+
+      <div className="flex gap-4">
+        <DateInput
+          label="시작일"
+          labelPlacement="outside"
+          onChange={debounce(1000, (data) => {
+            if (data?.year && data?.month && data?.day) {
+              setOptions((prev) => ({
+                ...prev,
+                after: dayjs(`${data.year}-${data.month}-${data.day}`).format("YYYY-MM-DD"),
+              }));
+            }
+          })}
+        />
+
+        <DateInput
+          label="종료일"
+          labelPlacement="outside"
+          onChange={debounce(1000, (data) => {
+            if (data?.year && data?.month && data?.day) {
+              setOptions((prev) => ({
+                ...prev,
+                before: dayjs(`${data.year}-${data.month}-${data.day}`).format("YYYY-MM-DD"),
+              }));
+            }
+          })}
+        />
+      </div>
+
       <div className="flex gap-4 flex-wrap">
         <Checkbox onChange={() => handleChangeOptions("accepted_mail_state", "not_yet")}>미확인 주문건만 보기</Checkbox>
 
