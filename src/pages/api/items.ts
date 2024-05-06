@@ -1,6 +1,5 @@
 import dayjs from "dayjs";
 import { NextApiRequest, NextApiResponse } from "next";
-import { ColorMeMeta, ColorMeOrder } from "~/types/colorMe";
 import { toQueryString } from "~/utils";
 
 function chunkArray(array: any[], size: number) {
@@ -13,32 +12,27 @@ function chunkArray(array: any[], size: number) {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const itemIds = req.query.itemIds as string;
-
   const threeMonthAgo = dayjs().subtract(3, "month");
 
   const defaultParams = {
-    ids: itemIds,
     limit: 100,
     canceled: false,
     after: threeMonthAgo.format("YYYY-MM-DD"),
   } as const;
 
-  const result = [];
+  const chunks = chunkArray(itemIds.split(", "), 100);
 
-  const chunk = chunkArray(itemIds.split(", "), 100);
+  const fetchPromises = chunks.map((ids) => {
+    return fetch(`https://api.shop-pro.jp/v1/sales?${toQueryString({ ...defaultParams, ids: ids.join(", ") })}`, {
+      headers: {
+        Authorization: req.cookies.token as string,
+      },
+    }).then((res) => res.json());
+  });
 
-  for (let ids of chunk) {
-    const items = await fetch(
-      `https://api.shop-pro.jp/v1/sales?${toQueryString({ ...defaultParams, ids: ids.join(", ") })}`,
-      {
-        headers: {
-          Authorization: req.cookies.token as string,
-        },
-      }
-    ).then((res) => res.json() as Promise<{ sales: ColorMeOrder[]; meta: ColorMeMeta }>);
+  const responses = await Promise.all(fetchPromises);
 
-    result.push(...items.sales);
-  }
+  const result = responses.flatMap((res) => res.sales);
 
   res.status(200).json({ items: { sales: result } });
 }
