@@ -132,30 +132,38 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
       <Divider />
 
       <CardBody className="flex flex-col gap-2">
-        {details.map(({ id, product_name: name, product_num: count, product_thumbnail_image_url: image }) => {
-          const isNotSingle = count !== 1;
+        {details.map(
+          ({
+            id,
+            product_name: name,
+            pristine_product_full_name,
+            product_num: count,
+            product_thumbnail_image_url: image,
+          }) => {
+            const isNotSingle = count !== 1;
 
-          return (
-            <Popover key={id}>
-              <PopoverTrigger>
-                <Button variant="light" className="whitespace-normal">
-                  <span
-                    className={clsx({
-                      "text-warning-600": isNotSingle,
-                      "bg-warning/20": isNotSingle,
-                    })}
-                  >
-                    {name} {count}EA
-                  </span>
-                </Button>
-              </PopoverTrigger>
+            return (
+              <Popover key={id}>
+                <PopoverTrigger>
+                  <Button variant="light" className="whitespace-normal">
+                    <span
+                      className={clsx({
+                        "text-warning-600": isNotSingle,
+                        "bg-warning/20": isNotSingle,
+                      })}
+                    >
+                      {name ?? pristine_product_full_name} {count}EA
+                    </span>
+                  </Button>
+                </PopoverTrigger>
 
-              <PopoverContent>
-                <Image src={image} alt="image" width={250} height={250} className="rounded-full" />
-              </PopoverContent>
-            </Popover>
-          );
-        })}
+                <PopoverContent>
+                  <Image src={image} alt="image" width={250} height={250} className="rounded-full" />
+                </PopoverContent>
+              </Popover>
+            );
+          }
+        )}
       </CardBody>
 
       {!isEqualAddress && (

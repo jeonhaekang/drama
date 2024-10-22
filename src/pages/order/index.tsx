@@ -78,7 +78,10 @@ const Order = () => {
   });
 
   const getIsReservation = (details: ColorMeOrder["details"]) => {
-    const isReservation = !!details.find(({ product_name: productName }) => productName.includes("予約"));
+    const isReservation = !!details.find(
+      ({ product_name: productName, pristine_product_full_name }) =>
+        productName?.includes("予約") ?? pristine_product_full_name?.includes("予約")
+    );
 
     return isReservation;
   };

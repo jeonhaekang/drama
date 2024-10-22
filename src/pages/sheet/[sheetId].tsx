@@ -29,10 +29,14 @@ const SheetDetail = () => {
   });
 
   const matome = orders?.sales.reduce((acc, sale) => {
-    sale.details.forEach(({ product_name, product_num }) => {
+    sale.details.forEach(({ product_name, product_num, pristine_product_full_name, ...rest }) => {
+      console.log(pristine_product_full_name, rest);
+      
       const _type = ["C", "D", "A", "B"];
 
-      let type = product_name[0] as keyof typeof map;
+      const productName =  pristine_product_full_name?? product_name;
+
+      let type = productName[0] as keyof typeof map;
 
       if (!_type.includes(type)) {
         type = "E";
@@ -42,7 +46,7 @@ const SheetDetail = () => {
         acc[map[type]] = {};
       }
 
-      acc[map[type]][product_name.trim()] = (acc[map[type]][product_name.trim()] || 0) + product_num;
+      acc[map[type]][productName.trim()] = (acc[map[type]][productName.trim()] || 0) + product_num;
     });
 
     return acc;
