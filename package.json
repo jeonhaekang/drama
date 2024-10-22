@@ -10,7 +10,7 @@
     "gen-types": "supabase gen types typescript --linked > src/types/supabase.ts"
   },
   "dependencies": {
-    "@nextui-org/react": "^2.3.6",
+    "@nextui-org/react": "^2.4.8",
     "@nextui-org/table": "^2.0.22",
     "@nextui-org/use-infinite-scroll": "^2.1.1",
     "@react-aria/ssr": "^3.7.1",
