@@ -112,11 +112,42 @@ const Home = () => {
 
       <p>{yahooList?.data?.length}</p>
 
+      <Button
+        color="primary"
+        disabled={!yahooList?.data}
+        onClick={() => {
+          if (!yahooList?.data?.length) return;
+
+          const chunkSize = 20;
+          const chunks = [];
+
+          // 데이터를 10개씩 쪼개기
+          for (let i = 0; i < yahooList.data.length; i += chunkSize) {
+            chunks.push(yahooList.data.slice(i, i + chunkSize));
+          }
+
+          // 3초마다 한 그룹씩 처리
+          chunks.forEach((chunk, chunkIndex) => {
+            setTimeout(() => {
+              chunk.forEach(({ title, description, price, yahooListImages }) => {
+                const images = yahooListImages.reduce((acc, { url }, index) => `${acc}&image${index + 1}=${url}`, "");
+
+                window.open(
+                  `https://auctions.yahoo.co.jp/sell/jp/show/submit?category=23316&title=${title}&description=${description}&price=${price}${images}`,
+                  "_blank"
+                );
+              });
+            }, chunkIndex * 5000); // 각 그룹 간 3초 간격
+          });
+        }}
+      >
+        업로드
+      </Button>
+
       <Table>
         <TableHeader
           columns={[
             { key: "title", label: "제목" },
-            // { key: "description", label: "설명글" },
             { key: "price", label: "가격" },
             { key: "images", label: "이미지" },
             { key: "actions", label: "액션" },
@@ -129,7 +160,6 @@ const Home = () => {
           {(order) => (
             <TableRow key={order.id}>
               <TableCell>{order.title}</TableCell>
-              {/* <TableCell>{order.description}</TableCell> */}
               <TableCell>{order.price}</TableCell>
               <TableCell className="flex gap-4">
                 {order.yahooListImages.map(({ id, url }) => (
