@@ -116,29 +116,16 @@ const Home = () => {
         color="primary"
         disabled={!yahooList?.data}
         onClick={() => {
-          if (!yahooList?.data?.length) return;
-
-          const chunkSize = 20;
-          const chunks = [];
-
-          // 데이터를 10개씩 쪼개기
-          for (let i = 0; i < yahooList.data.length; i += chunkSize) {
-            chunks.push(yahooList.data.slice(i, i + chunkSize));
-          }
-
-          // 3초마다 한 그룹씩 처리
-          chunks.forEach((chunk, chunkIndex) => {
-            setTimeout(() => {
-              chunk.forEach(({ title, description, price, yahooListImages }) => {
-                const images = yahooListImages.reduce((acc, { url }, index) => `${acc}&image${index + 1}=${url}`, "");
-
-                window.open(
-                  `https://auctions.yahoo.co.jp/sell/jp/show/submit?category=23316&title=${title}&description=${description}&price=${price}${images}`,
-                  "_blank"
-                );
-              });
-            }, chunkIndex * 5000); // 각 그룹 간 3초 간격
+          const jsonData = yahooList?.data?.map(({ title, description, price, yahooListImages }) => {
+            const imageUrls = yahooListImages.map(({ url }) => url);
+            return { title, description, price, imageUrls };
           });
+
+          const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json;charset=utf-8;" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "yahoo_list.json";
+          link.click();
         }}
       >
         업로드
