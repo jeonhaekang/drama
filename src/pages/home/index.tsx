@@ -47,7 +47,10 @@ const Home = () => {
   const { data: yahooList } = useQuery({
     queryKey: ["yahooList"],
     queryFn: async () => {
-      const yahooList = await supabase.from("yahooList").select("*, yahooListImages(*)");
+      const yahooList = await supabase
+        .from("yahooList")
+        .select("*, yahooListImages(*)")
+        .order("id", { ascending: false });
 
       return yahooList;
     },
