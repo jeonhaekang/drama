@@ -116,9 +116,9 @@ const Home = () => {
         color="primary"
         disabled={!yahooList?.data}
         onClick={() => {
-          const jsonData = yahooList?.data?.map(({ title, description, price, yahooListImages }) => {
+          const jsonData = yahooList?.data?.map(({ id, title, description, price, yahooListImages }) => {
             const imageUrls = yahooListImages.map(({ url }) => url);
-            return { title, description, price, imageUrls };
+            return { id, title, description, price, imageUrls };
           });
 
           const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json;charset=utf-8;" });
