@@ -104,18 +104,21 @@ export type Database = {
           createdAt: string
           description: string
           id: number
+          price: string
           title: string
         }
         Insert: {
           createdAt?: string
           description: string
           id?: number
+          price?: string
           title: string
         }
         Update: {
           createdAt?: string
           description?: string
           id?: number
+          price?: string
           title?: string
         }
         Relationships: []

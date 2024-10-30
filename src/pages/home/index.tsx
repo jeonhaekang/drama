@@ -112,6 +112,7 @@ const Home = () => {
           columns={[
             { key: "title", label: "제목" },
             { key: "description", label: "설명글" },
+            { key: "price", label: "가격" },
             { key: "images", label: "이미지" },
             { key: "actions", label: "액션" },
           ]}
@@ -124,6 +125,7 @@ const Home = () => {
             <TableRow key={order.id}>
               <TableCell>{order.title}</TableCell>
               <TableCell>{order.description}</TableCell>
+              <TableCell>{order.price}</TableCell>
               <TableCell className="flex gap-4">
                 {order.yahooListImages.map(({ id, url }) => (
                   <Image key={id} width={100} height={100} src={url} alt={url} />
