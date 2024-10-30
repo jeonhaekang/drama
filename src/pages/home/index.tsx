@@ -21,6 +21,7 @@ interface FormType {
   title: string;
   description: string;
   images: FileList;
+  price: string;
 }
 
 const uploadFile = async (file: File) => {
@@ -96,6 +97,8 @@ const Home = () => {
         <Input label="제목" {...form.register("title")} />
 
         <Textarea label="설명글" {...form.register("description")} />
+
+        <Input label="가격" {...form.register("price")} />
 
         <Input type="file" multiple {...form.register("images")} />
 
