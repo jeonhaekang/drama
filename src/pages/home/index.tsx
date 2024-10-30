@@ -54,8 +54,8 @@ const Home = () => {
   });
 
   const { mutate: insertYahooListMutate } = useMutation({
-    mutationFn: async ({ title, description, images }: FormType) => {
-      const { data, error } = await supabase.from("yahooList").insert({ title, description }).select().single();
+    mutationFn: async ({ title, description, price, images }: FormType) => {
+      const { data, error } = await supabase.from("yahooList").insert({ title, description, price }).select().single();
       if (error) throw error;
 
       const urls = [];
