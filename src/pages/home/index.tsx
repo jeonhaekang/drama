@@ -110,6 +110,8 @@ const Home = () => {
         </Button>
       </form>
 
+      <p>{yahooList?.data?.length}</p>
+
       <Table>
         <TableHeader
           columns={[
