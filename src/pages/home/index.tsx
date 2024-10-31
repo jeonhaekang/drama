@@ -19,7 +19,7 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import withAuth from "~/components/withAuth";
 import { supabase } from "~/server/config";
-import { Edit } from "./components/edit";
+import { Edit } from "../../components/edit";
 
 interface FormType {
   title: string;
