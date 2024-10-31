@@ -24,6 +24,8 @@ export const Edit = ({
     },
   });
 
+  //edit
+
   const { mutate } = useMutation({
     mutationFn: async (form: { title: string; description: string; price: string }) => {
       const { error } = await supabase.from("yahooList").update(form).eq("id", id);
