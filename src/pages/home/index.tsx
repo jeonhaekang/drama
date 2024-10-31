@@ -1,6 +1,9 @@
 import {
   Button,
   Input,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Spinner,
   Table,
   TableBody,
@@ -16,6 +19,7 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import withAuth from "~/components/withAuth";
 import { supabase } from "~/server/config";
+import { Edit } from "./components/edit";
 
 interface FormType {
   title: string;
@@ -146,7 +150,14 @@ const Home = () => {
         <TableBody items={yahooList?.data ?? []} loadingContent={<Spinner color="white" />}>
           {(order) => (
             <TableRow key={order.id}>
-              <TableCell>{order.title}</TableCell>
+              <TableCell>
+                <Popover>
+                  <PopoverTrigger>{order.title}</PopoverTrigger>
+                  <PopoverContent>
+                    <Edit {...order} />
+                  </PopoverContent>
+                </Popover>
+              </TableCell>
               <TableCell>{order.price}</TableCell>
               <TableCell className="flex gap-4">
                 {order.yahooListImages.map(({ id, url }) => (
