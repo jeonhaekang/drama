@@ -32,6 +32,8 @@ import { isEqualString } from "~/utils";
 export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
   const { id, customer, details, make_date: date, sale_deliveries: deliveries } = sale;
 
+  console.log(customer, deliveries);
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const queryClient = useQueryClient();
@@ -41,7 +43,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
 
   const customerAddress = `${customer.pref_name}${customer.address1} ${customer.address2 ?? ""}`;
 
-  const deliveryAddress = `${customer.pref_name}${deliveries[0].address1} ${deliveries[0].address2 ?? ""}`;
+  const deliveryAddress = `(${deliveries[0].postal}) ${customer.pref_name}${deliveries[0].address1} ${deliveries[0].address2 ?? ""}`;
 
   const isEqualAddress = isEqualString(customerAddress, deliveryAddress);
 

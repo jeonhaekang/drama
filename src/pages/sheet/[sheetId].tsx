@@ -31,10 +31,10 @@ const SheetDetail = () => {
   const matome = orders?.sales.reduce((acc, sale) => {
     sale.details.forEach(({ product_name, product_num, pristine_product_full_name, ...rest }) => {
       console.log(pristine_product_full_name, rest);
-      
+
       const _type = ["C", "D", "A", "B"];
 
-      const productName =  pristine_product_full_name?? product_name;
+      const productName = pristine_product_full_name ?? product_name;
 
       let type = productName[0] as keyof typeof map;
 
