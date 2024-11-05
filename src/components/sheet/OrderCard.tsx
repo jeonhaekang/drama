@@ -32,8 +32,6 @@ import { isEqualString } from "~/utils";
 export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
   const { id, customer, details, make_date: date, sale_deliveries: deliveries } = sale;
 
-  console.log(customer, deliveries);
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const queryClient = useQueryClient();
