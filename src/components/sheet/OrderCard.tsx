@@ -41,9 +41,13 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
 
   const sheetId = router.query.sheetId as string;
 
-  const customerAddress = `(${deliveries[0].postal}) ${customer.pref_name}${customer.address1} ${customer.address2 ?? ""}`;
+  const customerAddress = `(${deliveries[0].postal}) ${customer.pref_name}${customer.address1} ${
+    customer.address2 ?? ""
+  }`;
 
-  const deliveryAddress = `(${deliveries[0].postal}) ${customer.pref_name}${deliveries[0].address1} ${deliveries[0].address2 ?? ""}`;
+  const deliveryAddress = `(${deliveries[0].postal}) ${customer.pref_name}${deliveries[0].address1} ${
+    deliveries[0].address2 ?? ""
+  }`;
 
   const isEqualAddress = isEqualString(customerAddress, deliveryAddress);
 
@@ -101,7 +105,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
         <div>
           <p className="text-sm text-default-500">{id}</p>
           <p>
-            {customer.name}
+            <span className="customer-name">{customer.name}</span>
             <span className="text-xs text-default-400 ml-2">{customer.furigana}</span>
           </p>
 
@@ -188,7 +192,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
 
       <CardFooter className="flex justify-between">
         <form
-          className="flex gap-2"
+          className="flex gap-2 tacking-number-form"
           onSubmit={form.handleSubmit(({ slipNumber }) =>
             updateSlipNumberMutate({
               order: sale,
@@ -198,7 +202,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
         >
           <Input size="sm" placeholder="송장 번호를 입력해주세요." {...form.register("slipNumber")} />
 
-          <Button type="submit" size="sm" color="primary" disabled={isLoading}>
+          <Button type="submit" className="tacking-number-submit-button" size="sm" color="primary" disabled={isLoading}>
             {isLoading ? <Spinner color="white" size="sm" /> : "등록"}
           </Button>
         </form>
