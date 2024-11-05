@@ -100,7 +100,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
   });
 
   return (
-    <CardContainer>
+    <CardContainer className="customer-card">
       <CardHeader>
         <div>
           <p className="text-sm text-default-500">{id}</p>
