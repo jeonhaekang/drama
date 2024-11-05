@@ -41,7 +41,7 @@ export const OrderCard = memo(({ sale }: { sale: ColorMeOrder }) => {
 
   const sheetId = router.query.sheetId as string;
 
-  const customerAddress = `${customer.pref_name}${customer.address1} ${customer.address2 ?? ""}`;
+  const customerAddress = `(${deliveries[0].postal}) ${customer.pref_name}${customer.address1} ${customer.address2 ?? ""}`;
 
   const deliveryAddress = `(${deliveries[0].postal}) ${customer.pref_name}${deliveries[0].address1} ${deliveries[0].address2 ?? ""}`;
 
