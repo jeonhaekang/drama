@@ -24,7 +24,9 @@ export const DownloadCSV = ({ sales }: { sales?: ColorMeOrder[] }) => {
 
   const getDeliveryDataFromOrder = ({ sale_deliveries: deliveries, details }: ColorMeOrder) => {
     const _name = details
-      .map(({ product_name }) => product_name.replaceAll(" ", "").replaceAll("　", "").trim().slice(0, 7))
+      .map(({ product_name, pristine_product_full_name }) =>
+        pristine_product_full_name.replaceAll(" ", "").replaceAll("　", "").trim().slice(0, 7)
+      )
       .join(" ");
 
     return deliveries.map(({ postal, name, address1, address2, pref_name: pref }) => ({
