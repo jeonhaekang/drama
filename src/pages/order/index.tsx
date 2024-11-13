@@ -67,6 +67,8 @@ const Order = () => {
     },
   });
 
+  console.log(orders);
+
   const { mutate: insertOrderMutate } = useMutation({
     mutationFn: insertOrders,
     onSuccess: () => {
@@ -93,7 +95,7 @@ const Order = () => {
       _orders = _orders.filter((order) => !getIsReservation(order.details));
     }
 
-    _orders = _orders.filter((order) => !!order.details.find((detail) => !!detail.product_name.includes(keyword)));
+    _orders = _orders.filter((order) => !!order.details.find((detail) => !!detail.pristine_product_full_name?.includes(keyword)));
 
     const __orders = _orders.map(
       ({ id, customer, make_date: makeDate, details, paid, accepted_mail_state: acceptState, delivered }) => ({
